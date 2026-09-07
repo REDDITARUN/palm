@@ -1,0 +1,13 @@
+* text=auto
+*.swift text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.png binary
+*.icns binary
+*.store binary
+Sources/PlamCore/Resources/Editor/index.html linguist-generated=true -whitespace
+Sources/PlamCore/Resources/Editor/Licenses/** linguist-vendored=true -whitespace
+Sources/PlamCore/Resources/ThirdParty/** linguist-vendored=true -whitespace
+Sources/PlamCore/Resources/Diagrams/mermaid.min.js linguist-vendored=true -whitespace
+Plam.xcodeproj/project.pbxproj linguist-generated=true

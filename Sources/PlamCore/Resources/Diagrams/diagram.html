@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none';">
+<style>html,body{margin:0;padding:0;background:transparent;color:#24332e;font:14px -apple-system} #chart{padding:12px;overflow:auto}svg{display:block;margin:auto;max-width:100%;height:auto}body.dark{color:#e0eae5}#error{padding:16px;line-height:1.5}</style>
+<script src="mermaid.min.js"></script></head><body><div id="chart"></div><div id="error" hidden></div>
+<script>
+window.draw = async function(source, dark) {
+  document.body.className = dark ? 'dark' : '';
+  document.getElementById('error').hidden = true;
+  const chart = document.getElementById('chart'); chart.replaceChildren();
+  try {
+    if(source.length > 20000 || /%%\{|^\s*---/m.test(source)) throw Error('unsupported configuration');
+    mermaid.initialize({startOnLoad:false,securityLevel:'strict',theme:'base',themeVariables:{darkMode:dark,background:'transparent',primaryColor:dark?'#242b2c':'#f4f6f5',primaryTextColor:dark?'#e3e7e6':'#24282a',primaryBorderColor:dark?'#596565':'#a8b6b2',lineColor:dark?'#91aaa3':'#59756d',secondaryColor:dark?'#203d35':'#eaf3ef',tertiaryColor:dark?'#26282e':'#f6f6f7',fontFamily:'-apple-system',fontSize:'14px'},suppressErrorRendering:true,maxTextSize:20000,maxEdges:100,flowchart:{htmlLabels:false},fontFamily:'-apple-system'});
+    const rendered = await mermaid.render('plamDiagram', source);
+    chart.innerHTML = rendered.svg;
+    window.webkit.messageHandlers.diagram.postMessage({ok:true});
+  } catch(e) {
+    chart.replaceChildren();
+    const error = document.getElementById('error'); error.hidden = false;
+    error.textContent = 'This diagram could not be drawn. Open Diagram source below to read or edit it.';
+    window.webkit.messageHandlers.diagram.postMessage({ok:false});
+  }
+  reportSize();
+};
+function reportSize(){window.webkit.messageHandlers.diagram.postMessage({height:document.body.getBoundingClientRect().height});}
+new ResizeObserver(reportSize).observe(document.body);
+</script></body></html>

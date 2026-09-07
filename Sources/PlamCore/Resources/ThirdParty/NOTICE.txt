@@ -1,0 +1,25 @@
+Plam native dependencies — retain their original licenses.
+
+codeeditlanguages: https://github.com/CodeEditApp/CodeEditLanguages.git @ 331d5dbc5fc8513be5848fce8a2a312908f36a11
+codeeditsourceeditor: https://github.com/CodeEditApp/CodeEditSourceEditor.git @ 1fa4d3c3ffba007482111466cb9721416f97ae00
+codeedittextview: https://github.com/CodeEditApp/CodeEditTextView.git @ d7ac3f11f22ec2e820187acce8f3a3fb7aa8ddec
+grdb.swift: https://github.com/groue/GRDB.swift.git @ b83108d10f42680d78f23fe4d4d80fc88dab3212
+highlighterswift: https://github.com/smittytone/HighlighterSwift @ fe7aae9c9b31d3b296fd3d2dd575e1a207bb29e0
+openai: https://github.com/MacPaw/OpenAI.git @ a532be89be9a30ec003e4ba0974a52a88d26fc6d
+rearrange: https://github.com/ChimeHQ/Rearrange @ 4de8be41dba304192e87dc0a11e0aa39e72aa2e8
+swift-collections: https://github.com/apple/swift-collections.git @ a0cb0954ecb21e4e31b0070e6ed5674e8556685a
+swift-concurrency-extras: https://github.com/pointfreeco/swift-concurrency-extras @ 5fa253428866f2360c3754e88537f700ed2656b5
+swift-fsrs: https://github.com/open-spaced-repetition/swift-fsrs.git @ 4fbaf20184d62f82a9f44f343337c61a2c5483e9
+swift-http-types: https://github.com/apple/swift-http-types @ 6c8ca8297332ea2780c45e1bce9d7fd2a8b51e1d
+swift-markdown-engine: https://github.com/nodes-app/swift-markdown-engine.git @ 08ff3c07b198ed639f595d0279ebac62c0410bc7
+swift-openapi-runtime: https://github.com/apple/swift-openapi-runtime @ 9e53df53e043b53046a371b31aaf0a1e26eef946
+swiftlintplugin: https://github.com/lukepistrol/SwiftLintPlugin @ b384a67cf45d9989aed5aab23e226cbc7bc2cd54
+swiftmath: https://github.com/mgriebling/SwiftMath @ fa8244ed032f4a1ade4cb0571bf87d2f1a9fd2d7
+swifttreesitter: https://github.com/ChimeHQ/SwiftTreeSitter.git @ 08ef81eb8620617b55b08868126707ad72bf754f
+swiftui-math: https://github.com/gonzalezreal/swiftui-math @ 0b5c2cfaaec8d6193db206f675048eeb5ce95f71
+textformation: https://github.com/ChimeHQ/TextFormation @ b1ce9a14bd86042bba4de62236028dc4ce9db6a1
+textstory: https://github.com/ChimeHQ/TextStory @ a52db1a2eca74d37c8c19bf3165416941632ed45
+textual: https://github.com/gonzalezreal/textual.git @ 01b51875a5406eefc95f52a058cb059e7bc94dc4
+tree-sitter: https://github.com/tree-sitter/tree-sitter @ da6fe9beb4f7f67beb75914ca8e0d48ae48d6406
+
+CodeEditSymbols uses an original Plam compatibility module; no upstream source or assets are bundled. See Vendor/CodeEditSymbols/PLAM_PATCH.md.
