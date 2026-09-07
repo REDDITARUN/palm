@@ -8,3 +8,5 @@ Status: accepted, recorded 2026-09-07. These records describe the implemented ar
 - [0004 — Bundled block editor with note identity and revisions](0004-editable-linked-notes.md)
 - [0005 — Rebuildable memory index and a graph of saved relationships](0005-memory-and-graph.md)
 - [0006 — Source release, Mac disk image, and static GitHub Pages site](0006-public-release.md)
+
+- [0007 — Palm name and shared learning surfaces](0007-palm-brand-and-reading-surfaces.md)

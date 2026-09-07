@@ -2,9 +2,9 @@
 import PackageDescription
 
 let package = Package(
-    name: "Plam",
+    name: "Palm",
     platforms: [.macOS(.v15)],
-    products: [.executable(name: "Plam", targets: ["Plam"]), .library(name: "PlamKit", targets: ["PlamCore", "PlamComponents"])],
+    products: [.executable(name: "Palm", targets: ["Palm"]), .library(name: "PalmKit", targets: ["PalmCore", "PalmComponents"])],
     dependencies: [
         .package(path: "Vendor/CodeEditSymbols"),
         .package(url: "https://github.com/groue/GRDB.swift.git", from: "7.0.0"),
@@ -15,19 +15,19 @@ let package = Package(
         .package(url: "https://github.com/MacPaw/OpenAI.git", from: "0.4.7")
     ],
     targets: [
-        .target(name: "PlamComponents", dependencies: [.product(name: "Textual", package: "textual"), .product(name: "MarkdownEngine", package: "swift-markdown-engine"), .product(name: "CodeEditSourceEditor", package: "CodeEditSourceEditor")]),
-        .target(name: "PlamCore", dependencies: [
+        .target(name: "PalmComponents", dependencies: [.product(name: "Textual", package: "textual"), .product(name: "MarkdownEngine", package: "swift-markdown-engine"), .product(name: "CodeEditSourceEditor", package: "CodeEditSourceEditor")]),
+        .target(name: "PalmCore", dependencies: [
             .product(name: "GRDB", package: "GRDB.swift"),
             .product(name: "FSRS", package: "swift-fsrs"),
             .product(name: "OpenAI", package: "OpenAI")
         ], resources: [.copy("Resources")]),
-        .executableTarget(name: "Plam", dependencies: [
-            "PlamCore", .product(name: "Textual", package: "textual"),
+        .executableTarget(name: "Palm", dependencies: [
+            "PalmCore", .product(name: "Textual", package: "textual"),
             .product(name: "MarkdownEngine", package: "swift-markdown-engine"),
             .product(name: "CodeEditSourceEditor", package: "CodeEditSourceEditor")
         ]),
-        .testTarget(name: "PlamCoreTests", dependencies: ["PlamCore"]),
-        .testTarget(name: "PlamUITests", dependencies: ["Plam"])
+        .testTarget(name: "PalmCoreTests", dependencies: ["PalmCore"]),
+        .testTarget(name: "PalmUITests", dependencies: ["Palm"])
     ],
     swiftLanguageModes: [.v5]
 )

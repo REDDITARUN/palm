@@ -5,7 +5,7 @@ models=['thinkingmachines/inkling:free','thinkingmachines/inkling-small:free','n
 for model in models:
     assert model.endswith(':free')
     body={'model':model,'messages':[{'role':'user','content':'Return only JSON: {"closure":"a one-sentence accurate definition of a Python closure"}'}],'max_tokens':350,'reasoning':{'effort':'low','exclude':True}}
-    req=urllib.request.Request('https://openrouter.ai/api/v1/chat/completions',data=json.dumps(body).encode(),headers={'Authorization':'Bearer '+key,'Content-Type':'application/json','X-OpenRouter-Title':'Plam'})
+    req=urllib.request.Request('https://openrouter.ai/api/v1/chat/completions',data=json.dumps(body).encode(),headers={'Authorization':'Bearer '+key,'Content-Type':'application/json','X-OpenRouter-Title':'Palm'})
     start=time.time()
     try:
         with urllib.request.urlopen(req,timeout=60) as response: result=json.load(response)

@@ -8,9 +8,9 @@ Today presents a single suggested next step and every active course. Unfinished 
 
 The daily intention uses recorded lesson-time buckets, including time in a session started on an earlier day. The seven-day strip uses actual answers and card reviews. Answer and completed-topic counts appear after activity; repeated completion of the same topic does not inflate the daily count. These are activity measures, not a claimed mastery score.
 
-Reminders are opt-in through Today or General settings. The user chooses a local time. Plam schedules one repeating, silent local notification with a stable identifier, replaces it when the time changes, and removes it when disabled. Clicking the notification routes to Today. macOS notification permission is requested only when the user saves an enabled reminder. Focus and system notification settings still govern delivery. Test profiles save preferences without requesting notification permission or scheduling a notification.
+Reminders are opt-in through Today or General settings. The user chooses a local time. Palm schedules one repeating, silent local notification with a stable identifier, replaces it when the time changes, and removes it when disabled. Clicking the notification routes to Today. macOS notification permission is requested only when the user saves an enabled reminder. Focus and system notification settings still govern delivery. Test profiles save preferences without requesting notification permission or scheduling a notification.
 
-[Apple's local notification documentation](https://developer.apple.com/documentation/usernotifications/scheduling-a-notification-locally-from-your-app) informed the calendar trigger and replace/cancel behavior. This is a notification feature of Plam, not an external scheduler or cloud service.
+[Apple's local notification documentation](https://developer.apple.com/documentation/usernotifications/scheduling-a-notification-locally-from-your-app) informed the calendar trigger and replace/cancel behavior. This is a notification feature of Palm, not an external scheduler or cloud service.
 
 ## Tree
 
@@ -31,4 +31,4 @@ The inspector provides a saved-note preview, incoming/outgoing links, course own
 - Native production and test builds succeeded; installed bundle passed code-sign verification.
 - Native UI checks: multiple-course Today, resume into the expected saved session, course-specific review, reminder enable/save/relaunch persistence in a disposable profile, two-day sprout and leaf selection, graph pan preserving selection, independent node dragging, keyboard zoom, accessible node selection, local/whole graph, cross-course search, and opening the selected saved note. Graph contrast checked in light and dark appearances.
 - Actual scheduled notification delivery and the system permission dialog were not triggered during testing. These remain dependent on the user's opt-in and macOS settings.
-- Updated the installed app at `$HOME/Applications/Plam.app`, backed up the prior bundle and personal database, launched with the personal library, and left Today open. Decoded state, documents, conversations, and note revisions matched the pre-install backup.
+- Updated the installed app at `$HOME/Applications/Palm.app`, backed up the prior bundle and personal database, launched with the personal library, and left Today open. Decoded state, documents, conversations, and note revisions matched the pre-install backup.

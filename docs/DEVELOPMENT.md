@@ -13,14 +13,14 @@ git clone https://github.com/REDDITARUN/palm.git
 cd palm
 swift test
 bash Scripts/build-native.sh --test
-PLAM_TEST_DATA="$PWD/.test-data/manual" dist/PlamTest.app/Contents/MacOS/Plam
+PALM_TEST_DATA="$PWD/.test-data/manual" dist/PalmTest.app/Contents/MacOS/Palm
 ```
 
-The test bundle uses isolated storage and does not read a real model key. For fixture-backed generation, run `Scripts/fixture-server.py` and use `PLAM_TEST_ENDPOINT` as needed. Read the fixture script's options before running it.
+The test bundle uses isolated storage and does not read a real model key. For fixture-backed generation, run `Scripts/fixture-server.py` and use `PALM_TEST_ENDPOINT` as needed. Read the fixture script's options before running it.
 
-For the normal app, use `bash Scripts/build-native.sh` (Debug) or `bash Scripts/build-native.sh --release`. The generator creates `Plam.xcodeproj`; you may then use its **PlamMac** scheme. SwiftPM alone is appropriate for tests, while the native target produces the full resource-bearing `.app`.
+For the normal app, use `bash Scripts/build-native.sh` (Debug) or `bash Scripts/build-native.sh --release`. The generator creates `Palm.xcodeproj`; you may then use its **PalmMac** scheme. SwiftPM alone is appropriate for tests, while the native target produces the full resource-bearing `.app`.
 
-`Package.resolved` pins Swift dependencies. An original CodeEditSymbols compatibility module satisfies an unused transitive import without shipping upstream artwork. See its `PLAM_PATCH.md`.
+`Package.resolved` pins Swift dependencies. An original CodeEditSymbols compatibility module satisfies an unused transitive import without shipping upstream artwork. See its `PALM_PATCH.md`.
 
 ## Embedded editor
 
@@ -32,7 +32,7 @@ npm test
 npm run build
 ```
 
-The build updates `Sources/PlamCore/Resources/Editor/index.html` and license notices. Commit the source, lockfile, and generated artifact together. Do not commit `node_modules`.
+The build updates `Sources/PalmCore/Resources/Editor/index.html` and license notices. Commit the source, lockfile, and generated artifact together. Do not commit `node_modules`.
 
 ## Website
 

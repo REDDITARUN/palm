@@ -1,6 +1,6 @@
 # Security and privacy
 
-Plam keeps its library on your Mac and stores provider credentials in macOS Keychain. Selected learning context, including relevant code and notes, is sent to your chosen model provider. Provider retention and training policies vary. Inkling's free endpoint logs prompts and outputs for model improvement and prohibits confidential/personal data; choose an appropriate provider for private material.
+Palm keeps its library on your Mac and stores provider credentials in macOS Keychain. Selected learning context, including relevant code and notes, is sent to your chosen model provider. Provider retention and training policies vary. Inkling's free endpoint logs prompts and outputs for model improvement and prohibits confidential/personal data; choose an appropriate provider for private material.
 
 Repository imports exclude common secret filenames and build folders, but this is not a comprehensive secret scanner. Inspect what you import. Custom MCP tools run with the access granted by their configuration; install tools you trust.
 

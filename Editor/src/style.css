@@ -25,4 +25,21 @@
 .bn-editor [data-content-type="heading"]{--level:25px!important;font-size:25px!important;line-height:1.35}.bn-editor [data-content-type="heading"][data-level="2"]{--level:20px!important;font-size:20px!important}.bn-editor [data-content-type="heading"][data-level="3"]{--level:17px!important;font-size:17px!important}
 .bn-block-content[data-content-type="diagram"] .bn-preview-container{min-height:130px}.bn-block-content[data-content-type="diagram"] [role="img"]{width:100%;min-height:130px}.bn-block-content[data-content-type="diagram"] svg{width:100%;height:auto;min-height:130px;max-height:420px}
 
-.plam-diagram{width:100%;padding:10px 0}.plam-diagram svg{display:block;margin:auto;max-width:100%;height:auto}main[data-theme="dark"] .bn-container{--bn-colors-editor-text:#e3e4e6;--bn-colors-editor-background:transparent}
+.palm-diagram{width:100%;padding:10px 0}.palm-diagram svg{display:block;margin:auto;max-width:100%;height:auto}main[data-theme="dark"] .bn-container{--bn-colors-editor-text:#e3e4e6;--bn-colors-editor-background:transparent}
+
+/* Palm reading surfaces: the same sage palette as practice and the website. */
+:root{--study-ink:#293d30;--study-fill:#f0f3e8;--study-paper:#fcfcf8;--study-muted:#6e8061;--study-highlight:#e1ebba}
+:root.dark{--study-ink:#dde8d7;--study-fill:#29332b;--study-paper:#1b201c;--study-muted:#9cb594;--study-highlight:#4a612e}
+.bn-container{--bn-colors-editor-text:var(--study-ink);--bn-colors-highlights-yellow-background:var(--study-highlight)}
+.bn-container[data-color-scheme=dark],main[data-theme=dark] .bn-container{--bn-colors-editor-text:var(--study-ink);--bn-colors-highlights-yellow-background:var(--study-highlight)}
+.bn-editor :not(pre)>code{background:var(--study-fill);color:var(--study-ink);padding:2px 5px;border-radius:5px;font-size:.9em}
+.bn-editor [data-style-type=backgroundColor][data-value=yellow]{background:var(--study-highlight);color:var(--study-ink);border-radius:1px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.bn-editor .bn-block-content[data-content-type=codeBlock]{background:var(--study-fill);color:var(--study-ink);border:0;border-radius:14px;position:relative;margin:12px 0}
+.bn-editor .bn-block-content[data-content-type=codeBlock]>pre{padding:28px 24px 24px;line-height:1.8;overflow:auto;background:transparent}
+.bn-editor .bn-block-content[data-content-type=codeBlock]>pre>code{color:var(--study-ink);font:13px/1.8 ui-monospace,SFMono-Regular,Menlo,monospace;background:transparent}
+.bn-editor .bn-block-content[data-content-type=codeBlock]::before{content:attr(data-language);position:absolute;right:18px;top:9px;font:10px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--study-muted);pointer-events:none}
+.palm-diagram{background:var(--study-paper);border-radius:14px;padding:24px 12px}
+.bn-block-content[data-content-type=diagram] .bn-preview-container{border:0;background:transparent}
+/* BlockNote defaults code blocks to a dark highlighter even in light documents. */
+.bn-editor .bn-block-content .shiki{color:var(--shiki-light)}
+:root.dark .bn-editor .bn-block-content .shiki{color:var(--shiki-dark)}

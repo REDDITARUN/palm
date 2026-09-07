@@ -1,4 +1,4 @@
-# Plam: design and learning improvements
+# Palm: design and learning improvements
 
 Research and specification · 6 September 2026
 
@@ -8,7 +8,7 @@ Status: proposed work, not implemented by this research pass. Based on inspectio
 
 Use a quiet native Mac workspace: Linear’s consistent hierarchy, Notion’s emphasis on the document, and Apple’s controls, keyboard behavior, and accessibility. Keep SwiftUI, SF Pro/SF Mono, and the existing Markdown/editor components. Build a small shared component system around them. A web UI rewrite is unnecessary for these improvements.
 
-Linear’s recent refresh emphasizes consistent headers and navigation and a quieter sidebar. Its earlier redesign explicitly addressed visual noise and alignment. These support simplifying Plam’s shell, rather than adding more decorative cards. [Linear, March 2026](https://linear.app/changelog/2026-03-12-ui-refresh), [Linear design process](https://linear.app/now/how-we-redesigned-the-linear-ui).
+Linear’s recent refresh emphasizes consistent headers and navigation and a quieter sidebar. Its earlier redesign explicitly addressed visual noise and alignment. These support simplifying Palm’s shell, rather than adding more decorative cards. [Linear, March 2026](https://linear.app/changelog/2026-03-12-ui-refresh), [Linear design process](https://linear.app/now/how-we-redesigned-the-linear-ui).
 
 Proposed design targets, to verify in the actual app:
 
@@ -50,7 +50,7 @@ This was a targeted visual/source audit, not a complete accessibility or perform
 
 **Guidance that gradually decreases:** worked examples followed by progressively incomplete solutions can ease the transition to independent problem solving. Evidence for near transfer is clearer than for distant transfer. We should explicitly test a changed example rather than assume understanding transfers. [Renkl et al., 2002](https://doi.org/10.1080/00220970209599510).
 
-**Programming-specific structure:** PRIMM organizes activity around Predict, Run, Investigate, Modify, Make. It is a good design reference for reading code before writing it. Its school-programming context differs from a personal adult AI tutor, so Plam’s adaptation needs evaluation. [PRIMM, author’s explanation](https://suesentance.net/primm-project/).
+**Programming-specific structure:** PRIMM organizes activity around Predict, Run, Investigate, Modify, Make. It is a good design reference for reading code before writing it. Its school-programming context differs from a personal adult AI tutor, so Palm’s adaptation needs evaluation. [PRIMM, author’s explanation](https://suesentance.net/primm-project/).
 
 **Gamification:** a meta-analysis found average positive effects, with variation and less stable motivational/behavioral results in higher-rigor subsets. It does not establish that a particular streak or badge design improves understanding. Use rewards to acknowledge practice; measure learning separately. [Sailer & Homner, 2020](https://link.springer.com/article/10.1007/s10648-019-09498-w).
 
@@ -107,7 +107,7 @@ The proposed default loop is:
 
 **Predict → observe the result → understand why → complete a step → apply to a changed example → recall later.**
 
-Example: Python aliasing. Predict the result of mutating a list through a second variable; run it; show two names pointing to one list; complete a copying example; solve a changed case involving a nested list; revisit the distinction on a later day. This is our product adaptation, not a claim that the exact sequence has been validated in Plam.
+Example: Python aliasing. Predict the result of mutating a list through a second variable; run it; show two names pointing to one list; complete a copying example; solve a changed case involving a nested list; revisit the distinction on a later day. This is our product adaptation, not a claim that the exact sequence has been validated in Palm.
 
 ### F. Notes and explanatory visuals
 
@@ -144,7 +144,7 @@ Settings should retain separate editable prompts for introductory teaching, reca
 
 ## Diagram and chart tools: decisions
 
-| Tool | Fit for Plam | Decision |
+| Tool | Fit for Palm | Decision |
 | --- | --- | --- |
 | Mermaid | Generated flowcharts, sequences, state diagrams, small relationship maps; already bundled | Keep as the default. Apply one restrained light/dark theme, readable labels, zoom, copy source, and export. [Theming](https://mermaid.js.org/config/theming) |
 | Swift Charts | Native activity charts and bounded plots from structured data | Use for actual numeric data with axes, units, and a text/table alternative. [Apple documentation](https://developer.apple.com/documentation/charts) |
@@ -186,4 +186,4 @@ Suggested visual pipeline: **purpose + supported format + source → validation 
 - Confirm rewards are granted once, review scheduling survives relaunch, and day/time-zone changes do not duplicate activity.
 - Measure delayed recall and performance on changed examples separately from sessions completed and streak length.
 
-The first design pass should be reviewed on three representative surfaces together: a code question with feedback, a rich note with a diagram, and an open tutor conversation. They exercise the shared typography, interaction, layout, and rendering decisions that will shape the rest of Plam.
+The first design pass should be reviewed on three representative surfaces together: a code question with feedback, a rich note with a diagram, and an open tutor conversation. They exercise the shared typography, interaction, layout, and rendering decisions that will shape the rest of Palm.

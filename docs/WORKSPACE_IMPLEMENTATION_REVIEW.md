@@ -7,7 +7,7 @@ Date: September 7, 2026
 ### Notes and tutor
 
 - Always-editable BlockNote document bundled inside a native WKWebView. No separate editing mode or remote editor service.
-- Slash menu, block controls, selection formatting, highlighting, inline code, lists, tables, LaTeX, and Mermaid diagrams. A slim selection toolbar includes Ask Plam.
+- Slash menu, block controls, selection formatting, highlighting, inline code, lists, tables, LaTeX, and Mermaid diagrams. A slim selection toolbar includes Ask Palm.
 - Explicit import/export handling for legacy Markdown math, highlights, code fences, diagrams, and wiki links. Structured block JSON is the lossless document; Markdown remains the portable and retrieval representation.
 - Stable note links and a linked-from row. Typing `[[` opens note suggestions.
 - Shared adjacent tutor in notes and lessons, with an adjustable inspector divider and keyboard-accessible width control.
@@ -98,7 +98,7 @@ Installed and launched `[local development path]`. Research and design rationale
 - Fixed an exclusive-access crash in achievement pinning found during UI testing; corrected nested save presentation and achievement accessibility roles.
 - `swift test`: 65 cases, 59 passed, 6 opt-in live-model cases skipped, 0 failures. Both native test and production builds succeeded. No AI pipeline changes required live provider calls.
 - Compared decoded records before and after installation: personal state, all 3 documents, both conversations, and all 6 note revisions are unchanged. Backup: `.review/library-before-progress-1bd11c92.sqlite`. JSON byte ordering changed on routine save; decoded records match exactly.
-- Image artifacts: `.review/Plam-first.png` and `.review/Plam-progress.png`. Verification logs use the `redesign-progress-*` prefix.
+- Image artifacts: `.review/Palm-first.png` and `.review/Palm-progress.png`. Verification logs use the `redesign-progress-*` prefix.
 
 Limits: the graph renders up to 300 matching nodes at once and keeps dragged positions only while open. The tree canopy displays the latest 56 practice days; total growth remains recorded. Export saves or copies locally and does not publish externally.
 

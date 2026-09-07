@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Something in Plam is not working as expected
+about: Something in Palm is not working as expected
 title: ''
 labels: ''
 assignees: ''
@@ -15,7 +15,7 @@ assignees: ''
 3.
 
 **Environment**
-- Plam version:
+- Palm version:
 - macOS version / Mac chip:
 - Model/provider, if relevant (never include an API key):
 

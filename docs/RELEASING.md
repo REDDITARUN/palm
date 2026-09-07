@@ -5,7 +5,7 @@ The canonical repository is `REDDITARUN/palm`. The initial release supports Appl
 1. Update `VERSION` and `CHANGELOG.md`.
 2. Run the offline Swift suite and editor typecheck/tests/build. Review onboarding and affected flows using disposable data.
 3. Run `python3 Scripts/collect-swift-notices.py` after resolving packages, and `python3 Scripts/audit-public.py`.
-4. Run `bash Scripts/package-release.sh`. It builds Release, creates a disk image containing Plam and an Applications shortcut, verifies the image, and writes `dist/SHA256SUMS.txt`.
+4. Run `bash Scripts/package-release.sh`. It builds Release, creates a disk image containing Palm and an Applications shortcut, verifies the image, and writes `dist/SHA256SUMS.txt`.
 5. Mount the image read-only; confirm the app version, architecture, resources, signature validity, and Applications shortcut. Unmount it. Inspect the release payload for personal state or credentials.
 6. Commit reviewed source, push the authorized branch, create a version tag and a GitHub release using `gh release create`. Attach the `.dmg` and `SHA256SUMS.txt`; never commit the binary into Git.
 7. Verify the public release and download URL. Record any limitations, especially signing/notarization.

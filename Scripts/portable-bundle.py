@@ -5,7 +5,7 @@ import subprocess
 import sys
 
 app = Path(sys.argv[1]).resolve()
-executable = app / 'Contents/MacOS/Plam'
+executable = app / 'Contents/MacOS/Palm'
 if len(sys.argv) > 2 and sys.argv[2] == 'Release':
     subprocess.run(['/usr/bin/strip', '-S', str(executable)], check=True)
 commands = subprocess.check_output(['/usr/bin/otool', '-l', str(executable)], text=True).splitlines()

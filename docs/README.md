@@ -1,4 +1,4 @@
-# Plam documentation
+# Palm documentation
 
 ## Use the app
 

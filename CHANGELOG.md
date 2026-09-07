@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1 — 2026-09-07
+
+- Correct the product, source modules, installer, and website name to Palm; preserve existing libraries and credentials.
+- Apply the website’s sage diagrams, soft highlights, and code surfaces throughout learning and notes.
+- Add offline syntax highlighting to the editable notebook.
+- Give answer choices letter badges, responsive columns, and clear selection/feedback states.
+
 ## 1.0.0 — 2026-09-07
 
 First public source and Apple silicon macOS release.

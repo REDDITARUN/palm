@@ -1,21 +1,21 @@
-# Plam design and interaction redesign
+# Palm design and interaction redesign
 
 6 September 2026 · Research and implementation plan · No application code changed in this audit
 
-Plam works, but its interface does not yet have the consistency, restraint, or interaction reliability we want. The next design pass should replace the shared foundations and simplify complete workflows. Changing a few colors and corner radii will not resolve the current feel.
+Palm works, but its interface does not yet have the consistency, restraint, or interaction reliability we want. The next design pass should replace the shared foundations and simplify complete workflows. Changing a few colors and corner radii will not resolve the current feel.
 
 The proposed direction is a quiet Mac learning workspace: compact navigation, readable documents, clear actions, and dependable feedback. Use Linear for navigation hierarchy, Notion for document presentation, Apple for platform behavior, and Airbnb for component consistency. This is one complete redesign; the implementation order below describes dependencies, not separate product versions.
 
 ## Evidence from the app
 
-I inspected the running personal app, then the newer `dist/PlamTest.app` with the existing disposable `.review/ui-library`. The personal process was still showing an older interface. Findings below distinguish that from defects that remain in the newer build or source. This was an audit, not a full regression test or performance profile.
+I inspected the running personal app, then the newer `dist/PalmTest.app` with the existing disposable `.review/ui-library`. The personal process was still showing an older interface. Findings below distinguish that from defects that remain in the newer build or source. This was an audit, not a full regression test or performance profile.
 
 | Finding | Evidence | Consequence |
 | --- | --- | --- |
 | Sidebar whitespace does not activate a row | **Reproduced in the newer test build.** Clicking the empty right side of Notebook did nothing; clicking the label navigated successfully. | The visible row promises a larger target than the app provides. |
 | Hover behavior is incomplete | `InteractiveSurface` uses a 4.5% primary-color overlay. Several controls use `.plain` directly and bypass it. Sidebar labels do not define a full-row interaction shape. | Some controls give very faint feedback; others have no shared hover treatment. This does not mean every button lacks hover code. |
 | Theme is inconsistent across windows | **Observed:** main window light, Settings dark, with Light selected. The appearance override is attached to the main window but not the Settings scene. | The app visibly changes design language when opening settings. |
-| Keyboard support covers isolated actions | ⌘2 navigation worked. Tab focused course search; the next Tab stayed there. macOS keyboard-navigation settings were not inspected, so that alone is not proof of a Plam bug. Source has a few shortcuts and two text focus states, but no comprehensive navigation/focus policy. | Mouse-free completion and reliable focus restoration have not been established. |
+| Keyboard support covers isolated actions | ⌘2 navigation worked. Tab focused course search; the next Tab stayed there. macOS keyboard-navigation settings were not inspected, so that alone is not proof of a Palm bug. Source has a few shortcuts and two text focus states, but no comprehensive navigation/focus policy. | Mouse-free completion and reliable focus restoration have not been established. |
 | Persistent layout repeats context | The newer UI still has a top destination label plus a page title. Notebook repeats its name in the workspace header and its list pane. | Several layers consume attention before the actual content. |
 | Course detail overstates progress visually | **Observed:** progress ring, topic/level/time pills, completion banner, module counts, and lesson completion icons on one screen. | Multiple components compete to communicate similar information. |
 | Menus and selectors do not share a presentation system | Note/flashcard actions use native `Menu`; Settings and onboarding mix default pickers and segmented controls. The model chooser uses a potentially long menu. | Sizing, alignment, density, and interaction cues vary. |
@@ -25,11 +25,11 @@ I inspected the running personal app, then the newer `dist/PlamTest.app` with th
 | Keyboard submission needs collision review | Next question has an unmodified Return shortcut while the tutor can be open; tutor and answer fields have local ⌘Return behavior. | A focused editor must never accidentally advance a lesson. This is a source-identified risk, not a reproduced failure. |
 | Some metrics disagree | Progress counts practice days from lesson attempts, while its activity chart includes flashcard reviews. Sidebar due badge counts topic reviews only. | The same apparent concept can show different totals. |
 
-Relevant code: [shared controls](../../Sources/Plam/DesignSystem.swift), [window and sidebar](../../Sources/Plam/PlamApp.swift), [courses](../../Sources/Plam/CourseViews.swift), [notebook](../../Sources/Plam/LibraryViews.swift), [lesson](../../Sources/Plam/LessonView.swift), [settings and progress](../../Sources/Plam/TrackerSettings.swift).
+Relevant code: [shared controls](../../Sources/Palm/DesignSystem.swift), [window and sidebar](../../Sources/Palm/PalmApp.swift), [courses](../../Sources/Palm/CourseViews.swift), [notebook](../../Sources/Palm/LibraryViews.swift), [lesson](../../Sources/Palm/LessonView.swift), [settings and progress](../../Sources/Palm/TrackerSettings.swift).
 
 ## What the references actually suggest
 
-| Source | Useful principle | Application to Plam |
+| Source | Useful principle | Application to Palm |
 | --- | --- | --- |
 | [Linear UI refresh, March 2026](https://linear.app/changelog/2026-03-12-ui-refresh) | Consistent headers and view controls, quieter sidebar, more consistent icon sizing. | One window shell and toolbar grammar; let the learning content carry the strongest visual weight. |
 | [Linear redesign process, March 2024](https://linear.app/now/how-we-redesigned-the-linear-ui) | Test appearance, environment, and hierarchy across real layouts and states. | Review a small set of representative screens together before propagating components everywhere. |
@@ -39,7 +39,7 @@ Relevant code: [shared controls](../../Sources/Plam/DesignSystem.swift), [window
 | [Apple: SwiftUI focus cookbook](https://developer.apple.com/videos/play/wwdc2023/10162/) | Focus is contextual; text editing and button activation behave differently. Mac button tab navigation depends on the system keyboard-navigation setting. | Respect Mac conventions, test with keyboard navigation enabled, and design explicit focus transfer and restoration. |
 | [Apple: native menu bar](https://developer.apple.com/documentation/swiftui/building-and-customizing-the-menu-bar-with-swiftui) | System menus provide a consistent command surface. | Keep a native menu bar with the same actions and shortcuts used inside the app. |
 
-These references inform the direction. The measurements and component choices below are Plam-specific proposals, not copied brand specifications. The project's [interface cheat sheet](../../design_cheat_sheet.md) also supports semantic colors, full hit regions, visible focus, restrained motion, and readable line lengths. Its web-specific implementation advice needs native equivalents.
+These references inform the direction. The measurements and component choices below are Palm-specific proposals, not copied brand specifications. The project's [interface cheat sheet](../../design_cheat_sheet.md) also supports semantic colors, full hit regions, visible focus, restrained motion, and readable line lengths. Its web-specific implementation advice needs native equivalents.
 
 ## Visual system to lock in
 

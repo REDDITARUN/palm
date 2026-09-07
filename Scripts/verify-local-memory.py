@@ -5,7 +5,7 @@ memorydir=root/'.test-data/local-memory'
 python=root/'.runtime/venv/bin/python'
 def run(operation,text='',id=''):
     payload=dict(operation=operation,text=text,id=id,directory=str(memorydir))
-    result=subprocess.run([str(python),str(root/'Sources/PlamCore/Resources/memory.py')],input=json.dumps(payload),text=True,capture_output=True,timeout=180)
+    result=subprocess.run([str(python),str(root/'Sources/PalmCore/Resources/memory.py')],input=json.dumps(payload),text=True,capture_output=True,timeout=180)
     assert result.returncode==0,result.stderr[-3000:]
     return json.loads(result.stdout)
 added=run('add','I prefer small worked examples before independent code tracing.','real-local-embedding-test')

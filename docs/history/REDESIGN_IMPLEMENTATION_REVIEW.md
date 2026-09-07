@@ -1,4 +1,4 @@
-# Plam interaction and visual redesign
+# Palm interaction and visual redesign
 
 6 September 2026
 

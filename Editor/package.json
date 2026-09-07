@@ -1,5 +1,5 @@
 {
-  "name": "plam-note-editor",
+  "name": "palm-note-editor",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -16,7 +16,8 @@
     "@blocknote/shadcn": "0.54.0",
     "lucide-react": "^0.468.0",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "shiki": "4.4.2"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",

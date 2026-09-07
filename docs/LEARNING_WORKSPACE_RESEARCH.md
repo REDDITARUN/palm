@@ -1,4 +1,4 @@
-# Plam: learning workspace research and implementation specification
+# Palm: learning workspace research and implementation specification
 
 7 September 2026 · Research before implementation
 
@@ -24,7 +24,7 @@ The app should feel like a calm workspace: editable document in the center, opti
 | Memory | Local Mem0/Qdrant/FastEmbed indexes canonical learner memories with inference disabled. Notes have SQLite full-text indexing and simple backlinks. | A useful foundation exists, but a visual graph and global note retrieval are separate additions. |
 | Progress | Cumulative counts, activity bars, milestones, and per-skill totals dominate. | It is hard to tell what to practice next or what remains untested. |
 | Question navigation | `nextQuestion` exists; attempts are unique per question. | Adding Back requires separating navigation from reattempts and scoring. |
-| Icon | `Assets/Plam.icns` is bundled; the installed `Info.plist` contains no icon keys. | The missing icon has a concrete packaging cause. The build generator requests an icon key, but the produced bundle does not contain it. |
+| Icon | `Assets/Palm.icns` is bundled; the installed `Info.plist` contains no icon keys. | The missing icon has a concrete packaging cause. The build generator requests an icon key, but the produced bundle does not contain it. |
 
 Inspection did not modify personal notes, answers, or settings. No cloud-model calls were required for this research.
 
@@ -40,7 +40,7 @@ Inspection did not modify personal notes, answers, or settings. No cloud-model c
 
 These capabilities are documented by [SwiftMarkdownEngine](https://github.com/nodes-app/swift-markdown-engine), [BlockNote](https://github.com/TypeCellOS/BlockNote), and [Tiptap Mathematics](https://tiptap.dev/docs/editor/extensions/nodes/mathematics).
 
-Use BlockNote's core, React, and shadcn packages, styled with Plam's typography and colors. The public npm registry currently reports version 0.54.0 for these and its math/diagram packages. Pin one compatible set during implementation. Core packages report MPL-2.0; the separate XL AI package has different terms and is unnecessary for Plam's existing model layer. This distinction is documented in [BlockNote's repository](https://github.com/TypeCellOS/BlockNote#license-) and [AI integration documentation](https://www.blocknotejs.org/docs/features/ai). This is dependency scoping, not a request for a subscription.
+Use BlockNote's core, React, and shadcn packages, styled with Palm's typography and colors. The public npm registry currently reports version 0.54.0 for these and its math/diagram packages. Pin one compatible set during implementation. Core packages report MPL-2.0; the separate XL AI package has different terms and is unnecessary for Palm's existing model layer. This distinction is documented in [BlockNote's repository](https://github.com/TypeCellOS/BlockNote#license-) and [AI integration documentation](https://www.blocknotejs.org/docs/features/ai). This is dependency scoping, not a request for a subscription.
 
 Bundle the editor's HTML, JavaScript, fonts, and styles inside the signed app. Run it in WKWebView, without a local web server or internet dependency for typing. Swift remains responsible for storage, models, tools, and credentials. The editor receives document data and editing commands, never provider keys. Disable arbitrary page navigation and external content execution in this editor surface.
 
@@ -55,13 +55,13 @@ Bundle the editor's HTML, JavaScript, fonts, and styles inside the signed app. R
 - Keep Flashcards beside the note; allow selection → create card, with editable front/back before saving.
 - Support Undo/Redo across ordinary typing, block moves, and accepted AI edits. Autosave must flush on note switch, window close, and app quit.
 
-BlockNote documents dedicated [math](https://www.blocknotejs.org/docs/features/blocks/math), [diagram](https://www.blocknotejs.org/docs/features/blocks/diagrams), and [suggestion-menu](https://www.blocknotejs.org/docs/react/components/suggestion-menus) support. These are useful building blocks, not proof that their WKWebView integration already passes Plam's tests.
+BlockNote documents dedicated [math](https://www.blocknotejs.org/docs/features/blocks/math), [diagram](https://www.blocknotejs.org/docs/features/blocks/diagrams), and [suggestion-menu](https://www.blocknotejs.org/docs/react/components/suggestion-menus) support. These are useful building blocks, not proof that their WKWebView integration already passes Palm's tests.
 
 ### Storage and migration
 
 Use structured blocks with stable IDs as the canonical format for newly migrated notes. Preserve the original Markdown revision and maintain a Markdown export/search representation derived from those blocks. Never alternate between two independently editable authoritative copies.
 
-BlockNote explicitly describes Markdown conversion as lossy and recommends its JSON document format for lossless storage. Therefore automatic Markdown import alone is insufficient for Plam's highlights, wiki links, LaTeX, and Mermaid. Implement explicit converters for these constructs; preserve unknown content as a readable source block instead of dropping it. Verify every existing note construct before marking a conversion complete. [Format interoperability](https://www.blocknotejs.org/docs/foundations/supported-formats).
+BlockNote explicitly describes Markdown conversion as lossy and recommends its JSON document format for lossless storage. Therefore automatic Markdown import alone is insufficient for Palm's highlights, wiki links, LaTeX, and Mermaid. Implement explicit converters for these constructs; preserve unknown content as a readable source block instead of dropping it. Verify every existing note construct before marking a conversion complete. [Format interoperability](https://www.blocknotejs.org/docs/foundations/supported-formats).
 
 Store note revisions transactionally. Move high-frequency note/conversation writes into dedicated tables rather than rewriting the complete application JSON and rebuilding the note index on every token or keystroke. Keep existing IDs and backups compatible through a versioned migration.
 
@@ -185,7 +185,7 @@ Use additional model calls for evidence, critique, targeted repair, and useful v
 
 Kornell, Hays, and Bjork found that unsuccessful retrieval attempts could improve later learning when answers were subsequently provided. Their experiments used general-knowledge questions and word associates. This supports a brief ungraded prediction followed by explanation; it does not establish that prolonged guessing is best for every programming task. [2009 study](https://pubmed.ncbi.nlm.nih.gov/19586265/).
 
-A study of adaptive worked examples and tutored problem solving found better outcomes from choosing support based on the learner's needs than from a fixed sequence. Its SQL-tutoring context is relevant to technical learning, but the exact Plam workflow still needs evaluation. [Najar, Mitrovic, and McLaren, 2016](https://www.cs.cmu.edu/~bmclaren/pubs/NajarMitrovicMcLaren-LearningWithITSAndWorkedExamples-UMUAI2016.pdf).
+A study of adaptive worked examples and tutored problem solving found better outcomes from choosing support based on the learner's needs than from a fixed sequence. Its SQL-tutoring context is relevant to technical learning, but the exact Palm workflow still needs evaluation. [Najar, Mitrovic, and McLaren, 2016](https://www.cs.cmu.edu/~bmclaren/pubs/NajarMitrovicMcLaren-LearningWithITSAndWorkedExamples-UMUAI2016.pdf).
 
 Research reviews give stronger general support to practice testing and distributed practice than to highlighting alone. Therefore highlighting should feed an explanation, question, or flashcard, while spaced retrieval remains central. Interleaving is useful in some settings, not a rule to randomize every beginner lesson. [Dunlosky et al., 2013](https://journals.sagepub.com/doi/10.1177/1529100612453266), [Yan, Sana, and Carvalho, 2024](https://journals.sagepub.com/doi/10.1177/23727322231218906).
 
@@ -199,15 +199,15 @@ Make an AI section with Models, Tools, Skills, Prompts, and Activity. Keep ordin
 - **Prompts:** global teaching tone plus per-task overrides, reset, preview, and version history.
 - **Activity:** actual stages, tools used, source coverage, duration, usage, cancellation, and actionable failures. Avoid logging credentials.
 
-Extend the existing OpenCode MCP/skills integration first rather than create a competing agent framework. Its documentation supports configurable MCP servers and SKILL.md discovery. A shared Plam registry should translate to role-specific OpenCode configuration. The official Swift MCP SDK is an alternative if native direct tool sessions become necessary; adopting it does not by itself supply a complete agent loop. [OpenCode MCP](https://opencode.ai/docs/mcp-servers/), [OpenCode skills](https://opencode.ai/docs/skills/), [Agent Skills format](https://agentskills.io/specification), [Swift MCP SDK](https://github.com/modelcontextprotocol/swift-sdk).
+Extend the existing OpenCode MCP/skills integration first rather than create a competing agent framework. Its documentation supports configurable MCP servers and SKILL.md discovery. A shared Palm registry should translate to role-specific OpenCode configuration. The official Swift MCP SDK is an alternative if native direct tool sessions become necessary; adopting it does not by itself supply a complete agent loop. [OpenCode MCP](https://opencode.ai/docs/mcp-servers/), [OpenCode skills](https://opencode.ai/docs/skills/), [Agent Skills format](https://agentskills.io/specification), [Swift MCP SDK](https://github.com/modelcontextprotocol/swift-sdk).
 
 ## 9. Visual details and icon
 
-The supplied orb reference includes a real SwiftUI package, `ThinkingOrbsKit`, whose manifest supports macOS 12+. It uses Canvas and TimelineView, has no package dependencies, and includes an explicit Reduce Motion path. This fits Plam's macOS 15 baseline. Vendor or package a pinned revision with its license, then verify inside the app. Use one small orb beside an accurate status label and stop animating when idle. [Orb reference](https://libraries.dev/orbs), [SwiftUI package](https://github.com/Jakubantalik/Libraries.dev/tree/main/packages/thinking-orbs/ports/ios/ThinkingOrbsKit).
+The supplied orb reference includes a real SwiftUI package, `ThinkingOrbsKit`, whose manifest supports macOS 12+. It uses Canvas and TimelineView, has no package dependencies, and includes an explicit Reduce Motion path. This fits Palm's macOS 15 baseline. Vendor or package a pinned revision with its license, then verify inside the app. Use one small orb beside an accurate status label and stop animating when idle. [Orb reference](https://libraries.dev/orbs), [SwiftUI package](https://github.com/Jakubantalik/Libraries.dev/tree/main/packages/thinking-orbs/ports/ios/ThinkingOrbsKit).
 
-Keep the document palette neutral with Plam's muted green for primary actions. Reserve green/red/amber for clearly explained feedback states; don't make every note block colorful. Hover and focus must remain distinguishable. Hide block handles when inactive without making keyboard access disappear.
+Keep the document palette neutral with Palm's muted green for primary actions. Reserve green/red/amber for clearly explained feedback states; don't make every note block colorful. Hover and focus must remain distinguishable. Hide block handles when inactive without making keyboard access disappear.
 
-For the icon, preserve the recognizable Plam leaf idea, simplify the silhouette, and check it at Dock and Finder sizes. First fix the generated bundle metadata; a new picture alone will not solve the current missing declaration. Verify the final installed bundle has the icon resource and a valid icon declaration, then inspect Dock, Finder, app switcher, and About. Follow [Apple's app-icon guidance](https://developer.apple.com/design/human-interface-guidelines/app-icons).
+For the icon, preserve the recognizable Palm leaf idea, simplify the silhouette, and check it at Dock and Finder sizes. First fix the generated bundle metadata; a new picture alone will not solve the current missing declaration. Verify the final installed bundle has the icon resource and a valid icon declaration, then inspect Dock, Finder, app switcher, and About. Follow [Apple's app-icon guidance](https://developer.apple.com/design/human-interface-guidelines/app-icons).
 
 ## Implementation order and completion checks
 

@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 root="$PWD"
 [ -f site/index.html ] || { echo 'site/index.html is missing.' >&2; exit 1; }
 git fetch origin
-temporary=$(mktemp -d "${TMPDIR:-/tmp}/plam-pages.XXXXXX")
+temporary=$(mktemp -d "${TMPDIR:-/tmp}/palm-pages.XXXXXX")
 worktree="$temporary/site"
 cleanup() { git worktree remove --force "$worktree" >/dev/null 2>&1 || true; rm -rf "$temporary"; }
 trap cleanup EXIT
@@ -21,6 +21,6 @@ git -C "$worktree" rm -rf --ignore-unmatch . >/dev/null
 cp -R "$root/site/." "$worktree/"
 git -C "$worktree" add .
 if ! git -C "$worktree" diff --cached --quiet; then
-    git -C "$worktree" commit -m "Publish Plam download website"
+    git -C "$worktree" commit -m "Publish Palm download website"
     git -C "$worktree" push origin HEAD:gh-pages
 fi

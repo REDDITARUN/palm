@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping make Plam a thoughtful place to learn.
+Thanks for helping make Palm a thoughtful place to learn.
 
 1. Read the [architecture](docs/ARCHITECTURE.md) and [ADRs](docs/adr/README.md).
 2. Fork the repository and create a focused branch.

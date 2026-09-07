@@ -21,6 +21,7 @@ Editor/node_modules/
 *.sqlite-*
 *.db
 *.db-*
+*.palmbackup/
 *.plambackup/
 *.log
 *.dmg

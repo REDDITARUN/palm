@@ -5,7 +5,7 @@ Status: Accepted
 
 ## Context
 
-People need a straightforward way to understand, download, install, and contribute to Plam without a hosted app service.
+People need a straightforward way to understand, download, install, and contribute to Palm without a hosted app service.
 
 ## Decision
 

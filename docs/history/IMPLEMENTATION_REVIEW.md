@@ -1,4 +1,4 @@
-# Plam implementation and review
+# Palm implementation and review
 
 6 September 2026
 
@@ -37,6 +37,6 @@
 
 The research document is the broader product backlog. This implementation does not claim every item is finished. Remaining larger work includes adaptive sequencing and stable concept-level lesson reviews beyond flashcards; a real code-execution/step-through lab; source-backed interactive repository maps; full block/slash editing; a command palette; incremental tutor streaming with durable partial responses; and optional weekly/rest-day goal rules. Diagrams have a local renderer and readable failure fallback, but do not yet have a model repair tool or chart-generation pipeline.
 
-The signed update is installed at `$HOME/Applications/Plam.app`. The running previous app was left open while the Mac was locked; quit and reopen Plam to load the update. Its previous bundle is retained in `.review/` (path recorded in `.review/installed-backup-path.txt`).
+The signed update is installed at `$HOME/Applications/Palm.app`. The running previous app was left open while the Mac was locked; quit and reopen Palm to load the update. Its previous bundle is retained in `.review/` (path recorded in `.review/installed-backup-path.txt`).
 
 No personal courses, notes, credentials, or learning history were replaced with fixture data. UI fixtures and cloud test inputs were separate from the personal library. The previous source snapshot is retained under `.review/before-learning-polish.tar.gz`.

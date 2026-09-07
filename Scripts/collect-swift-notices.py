@@ -7,10 +7,10 @@ root = Path(__file__).resolve().parent.parent
 checkouts = root / '.build/checkouts'
 if not checkouts.is_dir():
     raise SystemExit('Resolve Swift packages first: swift package resolve')
-out = root / 'Sources/PlamCore/Resources/ThirdParty'
+out = root / 'Sources/PalmCore/Resources/ThirdParty'
 out.mkdir(parents=True, exist_ok=True)
 pins = json.loads((root / 'Package.resolved').read_text())['pins']
-lines = ['Plam native dependencies — retain their original licenses.\n']
+lines = ['Palm native dependencies — retain their original licenses.\n']
 for pin in pins:
     identity = pin['identity']
     folder = next((p for p in checkouts.iterdir() if p.name.lower() == identity.lower()), None)
@@ -21,6 +21,6 @@ for pin in pins:
                 target = out / identity / source.relative_to(folder)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(source, target)
-lines.append('\nCodeEditSymbols uses an original Plam compatibility module; no upstream source or assets are bundled. See Vendor/CodeEditSymbols/PLAM_PATCH.md.')
+lines.append('\nCodeEditSymbols uses an original Palm compatibility module; no upstream source or assets are bundled. See Vendor/CodeEditSymbols/PALM_PATCH.md.')
 (out / 'NOTICE.txt').write_text('\n'.join(lines) + '\n')
 print('Collected pinned Swift dependency notices.')

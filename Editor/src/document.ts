@@ -1,4 +1,4 @@
-// BlockNote's Markdown format is intentionally lossy. Preserve Plam's extensions
+// BlockNote's Markdown format is intentionally lossy. Preserve Palm's extensions
 // explicitly; block JSON is always the canonical editing representation.
 import type { BlockNoteEditor } from '@blocknote/core';
 type Editor = BlockNoteEditor<any, any, any>;
@@ -6,7 +6,7 @@ type Item = {type:string; text?:string; styles?:Record<string,unknown>; content?
 export function importMarkdown(editor:Editor, markdown:string, links:Record<string,string> = {}) {
   const math = new Map<string,string>();
   // Protect fenced examples: dollar signs within program text are literal.
-  const prepared = markdown.split(/(```[\s\S]*?```|~~~[\s\S]*?~~~)/g).map((part,index) => index%2 ? part : part.replace(/^\$\$\s*\n([\s\S]*?)\n\$\$\s*$/gm,(_,source:string) => { const token='PLAMMATH'+crypto.randomUUID().replaceAll('-','');math.set(token,source);return '\n'+token+'\n'; })).join('');
+  const prepared = markdown.split(/(```[\s\S]*?```|~~~[\s\S]*?~~~)/g).map((part,index) => index%2 ? part : part.replace(/^\$\$\s*\n([\s\S]*?)\n\$\$\s*$/gm,(_,source:string) => { const token='PALMMATH'+crypto.randomUUID().replaceAll('-','');math.set(token,source);return '\n'+token+'\n'; })).join('');
   const blocks = editor.tryParseMarkdownToBlocks(prepared) as Item[];
   const walk = (block:Item):Item => {
     if(block.type === 'codeBlock' || block.type === 'diagram') return block;

@@ -31,9 +31,9 @@ class LocalTestEmbedding:
         return [(data[i %% 32] / 255.0) for i in range(384)]
 EmbedderFactory.create = staticmethod(lambda *a, **k: LocalTestEmbedding())
 runpy.run_path(%r)['main']()
-''' % str(ROOT/'Sources/PlamCore/Resources/memory.py')
+''' % str(ROOT/'Sources/PalmCore/Resources/memory.py')
 def check_memory():
-    with tempfile.TemporaryDirectory(prefix='plam-memory-') as directory:
+    with tempfile.TemporaryDirectory(prefix='palm-memory-') as directory:
         def operation(name, text='', id=''):
             payload = dict(operation=name, text=text, id=id, key='local-test-only', directory=directory)
             completed = subprocess.run([str(RUNTIME/'venv/bin/python'), '-c', PRELUDE], input=json.dumps(payload), text=True, capture_output=True, timeout=45)

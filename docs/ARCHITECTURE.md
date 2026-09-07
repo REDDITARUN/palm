@@ -1,6 +1,6 @@
 # Architecture
 
-Plam is a local-first macOS application with a cloud-compatible AI boundary. SQLite holds the authoritative learning library. Model providers generate and grade learning artifacts; optional local tools explore saved code and index learning memory.
+Palm is a local-first macOS application with a cloud-compatible AI boundary. SQLite holds the authoritative learning library. Model providers generate and grade learning artifacts; optional local tools explore saved code and index learning memory.
 
 ```mermaid
 flowchart LR
@@ -20,8 +20,8 @@ flowchart LR
 
 ## Boundaries
 
-- **PlamCore:** Codable models, database transactions/revisions, source import/filtering, prompts and response validation, scheduling, daily planning, graph indexing/layout, and process/runtime services.
-- **Plam:** observable application state, SwiftUI screens and navigation, Keychain interactions, AppKit graph/input bridges, notifications, packaging-facing resources.
+- **PalmCore:** Codable models, database transactions/revisions, source import/filtering, prompts and response validation, scheduling, daily planning, graph indexing/layout, and process/runtime services.
+- **Palm:** observable application state, SwiftUI screens and navigation, Keychain interactions, AppKit graph/input bridges, notifications, packaging-facing resources.
 - **Editor:** React/BlockNote source built into a single bundled HTML artifact. WKWebView messages carry note identity and revision so late edits cannot target a different note.
 - **Optional runtime:** pinned installer bootstraps Python, OpenCode, Serena, Mem0, and local embeddings into the user's Application Support directory. No personal runtime cache ships in releases.
 

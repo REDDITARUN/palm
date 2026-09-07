@@ -12,6 +12,6 @@ export function NoteToolbar() {
     <Button label="Highlight" mainTooltip="Highlight" icon={<Highlighter size={16}/>} onClick={()=>{editor.focus();editor.toggleStyles({backgroundColor:'yellow'});}}/>
     <ColorStyleButton/>
     <CreateLinkButton/>
-    <Button label="Ask Plam" mainTooltip="Ask about selection" icon={<Sparkles size={16}/>} onClick={()=>window.webkit?.messageHandlers.plam.postMessage({type:'askSelection',text:editor.getSelectedText()})}/>
+    <Button label="Ask Palm" mainTooltip="Ask about selection" icon={<Sparkles size={16}/>} onClick={()=>window.webkit?.messageHandlers.palm.postMessage({type:'askSelection',text:editor.getSelectedText()})}/>
   </FormattingToolbar>;
 }

@@ -2,7 +2,7 @@
 
 ## Delivered build
 
-Native Apple silicon macOS application, built with the `PlamMac` Xcode scheme. `codesign --verify --deep --strict` succeeds. The bundle includes its resource packages, local-tool installer, memory worker, and custom icon. Runtime tools and local embedding weights were prepared in the personal app's Application Support folder.
+Native Apple silicon macOS application, built with the `PalmMac` Xcode scheme. `codesign --verify --deep --strict` succeeds. The bundle includes its resource packages, local-tool installer, memory worker, and custom icon. Runtime tools and local embedding weights were prepared in the personal app's Application Support folder.
 
 ## Automated checks
 
@@ -52,7 +52,7 @@ Structural checks and these examples cannot prove all generated material correct
 
 ## Backup and restore audit
 
-A full `.plambackup` export/restore now preserves note revisions and immutable code snapshots. The round-trip test deletes the original snapshot before restoration into a separate library, then checks code content, drafts, note history, FTS search, and reopening. Invalid imports leave the current library intact. Restored jobs are interrupted and vector IDs cleared for rebuilding. The storage-panel controls await native UI verification because the Mac remains locked.
+A full `.palmbackup` export/restore now preserves note revisions and immutable code snapshots. The round-trip test deletes the original snapshot before restoration into a separate library, then checks code content, drafts, note history, FTS search, and reopening. Invalid imports leave the current library intact. Restored jobs are interrupted and vector IDs cleared for rebuilding. The storage-panel controls await native UI verification because the Mac remains locked.
 
 ## Full live repository-course lifecycle
 
@@ -60,13 +60,13 @@ A separate, explicitly opted-in Inkling free run completed in **274 seconds** wi
 
 The longer test exposed and fixed three integration issues: omitted empty auxiliary question fields, a model-generated transfer-question type needing rubric grading, and absolute/agent-metadata citations that could not open the actual snapshot. Source locations are now explicitly supplied and validated; repair feedback identifies missing fields and invalid values. Required answers and explanations remain mandatory. Earlier failed runs are not counted as passes.
 
-Successful artifacts: `.test-data/live-agent-runtime/lifecycle-D3858446-1BE6-4CAD-99DA-CF001AFCCD7B/`. Test log: `/tmp/plam-lifecycle.log`. Reproduce with `python3 Scripts/verify-live-provider.py thinkingmachines/inkling:free --lifecycle`; it reads the authorized credential from Keychain and restricts models to free IDs.
+Successful artifacts: `.test-data/live-agent-runtime/lifecycle-D3858446-1BE6-4CAD-99DA-CF001AFCCD7B/`. Test log: `/tmp/palm-lifecycle.log`. Reproduce with `python3 Scripts/verify-live-provider.py thinkingmachines/inkling:free --lifecycle`; it reads the authorized credential from Keychain and restricts models to free IDs.
 
 Remaining gate: the installed native app's final live-course/checkpoint/light-appearance/backup-control walkthrough. macOS computer use continues to report that the Mac is locked. This remains unverified; the goal is not complete.
 
 ## User-feedback polish pass
 
-Applied the root `design_cheat_sheet.md` to the native SwiftUI controls. The real Inkling UX test passed in **137 seconds**: three diagnostic questions with options, correct grading of equivalent prose for printed output, rejection of a genuinely wrong output, and a ten-question lesson with four choice questions. The lesson title also matched its specific topic. Test log: `/tmp/plam-ux-live.log`.
+Applied the root `design_cheat_sheet.md` to the native SwiftUI controls. The real Inkling UX test passed in **137 seconds**: three diagnostic questions with options, correct grading of equivalent prose for printed output, rejection of a genuinely wrong output, and a ten-question lesson with four choice questions. The lesson title also matched its specific topic. Test log: `/tmp/palm-ux-live.log`.
 
 The isolated native UI walkthrough (`.test-data/ux-polish-20260905`) verified onboarding, choice diagnostics, “Not sure yet,” course generation, the complete four-question mixed quiz, semantic-grading routing, scrolling to feedback, resetting scroll position for new questions, reflection, congratulations, note reading, editing, multi-tag entry, undo/redo, and accepting a tutor suggestion. A restart preserved the completed session and note. The last screenshot verified that the focused diagnostic displays all four options and navigation together.
 
@@ -88,6 +88,6 @@ Checked the original personal notebook visually before editing code; all mutatio
 - Real free Inkling/OpenCode: mixed lesson generation, three diagnostic questions, acceptance of equivalent prose output, rejection of wrong output, and customized Mermaid recap generation passed. An additional recap-only call passed in 22.8 seconds. The model's first recap was too long and report-like; defaults were tightened toward natural study explanations and explicit grounding in actual attempts. Generated explanations remain model output, not a guarantee of factual perfection.
 - Standard tests added for old preference compatibility/customization round trips, Mermaid fence boundaries and local assets, LaTeX protection in code/matrix syntax, empty recap rejection/source preservation, and excluding uncertain grades from fallback mistake notes.
 
-The latest app is installed at `$HOME/Applications/Plam.app`. Test libraries and test model routing are separate from the personal library.
+The latest app is installed at `$HOME/Applications/Palm.app`. Test libraries and test model routing are separate from the personal library.
 
 Packaging verification also caught Xcode retaining an old resource seal after an incremental HTML-only change. `Scripts/build-native.sh` now signs the final copied bundle and runs strict deep signature verification; the installed final bundle passed.

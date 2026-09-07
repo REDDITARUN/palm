@@ -44,5 +44,5 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json({"id": "test-response", "object": "chat.completion", "created": 1788500000, "model": "test-model", "choices": [{"index": 0, "message": {"role": "assistant", "content": content}, "finish_reason": "stop"}]})
 
 if __name__ == "__main__":
-    print("Plam test provider on http://127.0.0.1:49160/v1", flush=True)
+    print("Palm test provider on http://127.0.0.1:49160/v1", flush=True)
     ThreadingHTTPServer(("127.0.0.1", 49160), Handler).serve_forever()

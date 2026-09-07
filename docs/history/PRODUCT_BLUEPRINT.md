@@ -1,4 +1,4 @@
-# Plam — complete Mac learning app blueprint
+# Palm — complete Mac learning app blueprint
 
 Decision date: 2026-09-05. Status: researched architecture and product specification; implementation and integration benchmarks have not been performed.
 
@@ -33,7 +33,7 @@ This document specifies one complete product. The implementation workstreams bel
 
 Primary references: [GRDB](https://github.com/groue/GRDB.swift), [OpenCode server](https://opencode.ai/docs/server/), [Serena](https://github.com/oraios/serena), [Context7](https://github.com/upstash/context7), [MacPaw/OpenAI](https://github.com/MacPaw/OpenAI), [Mem0](https://github.com/mem0ai/mem0), [Qdrant client](https://github.com/qdrant/qdrant-client), [Textual](https://github.com/gonzalezreal/textual), [SwiftMarkdownEngine](https://github.com/nodes-app/swift-markdown-engine), [CodeEditSourceEditor](https://github.com/CodeEditApp/CodeEditSourceEditor), [swift-fsrs](https://github.com/open-spaced-repetition/swift-fsrs).
 
-Native frameworks are the foundation. Smaller specialist libraries are selected for their concrete functionality, not assumed to be mature merely because they are open source. SwiftMarkdownEngine explicitly has a pre-1.0 API; pin its revision and isolate it behind our editor interface. Qdrant documents local mode primarily for development and testing; acceptance testing must establish that it meets this app's bounded personal-memory workload. Neither dependency has been benchmarked in Plam yet.
+Native frameworks are the foundation. Smaller specialist libraries are selected for their concrete functionality, not assumed to be mature merely because they are open source. SwiftMarkdownEngine explicitly has a pre-1.0 API; pin its revision and isolate it behind our editor interface. Qdrant documents local mode primarily for development and testing; acceptance testing must establish that it meets this app's bounded personal-memory workload. Neither dependency has been benchmarked in Palm yet.
 
 ## The complete learning experience
 

@@ -1,6 +1,6 @@
-# Plam learning design: evidence and product decisions
+# Palm learning design: evidence and product decisions
 
-Research date: 2026-09-05. This supplements PRODUCT_BLUEPRINT.md. It distinguishes published findings from proposed application behavior. The complete Plam workflow has not been experimentally validated.
+Research date: 2026-09-05. This supplements PRODUCT_BLUEPRINT.md. It distinguishes published findings from proposed application behavior. The complete Palm workflow has not been experimentally validated.
 
 ## What the evidence supports
 
@@ -48,7 +48,7 @@ Decision: use unseen examples and delayed checkpoints. Do not claim that success
 
 ### 8. Measure performance without AI assistance
 
-Bastani and colleagues' high-school mathematics experiment found that unrestricted GPT assistance improved practice performance but harmed subsequent unaided exam performance; a constrained tutor largely mitigated that harm without establishing a positive unaided learning effect. This is short-term mathematics evidence, not a direct evaluation of Plam or experienced developers. [Author-hosted paper](https://hamsabastani.github.io/education_llm.pdf).
+Bastani and colleagues' high-school mathematics experiment found that unrestricted GPT assistance improved practice performance but harmed subsequent unaided exam performance; a constrained tutor largely mitigated that harm without establishing a positive unaided learning effect. This is short-term mathematics evidence, not a direct evaluation of Palm or experienced developers. [Author-hosted paper](https://hamsabastani.github.io/education_llm.pdf).
 
 Decision: tutoring offers progressively more specific hints and an explicit explanation/reveal action. The learner can always choose help. Record assistance and follow it with a fresh opportunity to answer independently; do not award independent-mastery evidence for reproducing a revealed answer.
 

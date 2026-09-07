@@ -5,7 +5,7 @@ import { createSchema } from './schema';
 import { importMarkdown, exportMarkdown } from './document';
 
 const makeEditor=()=>BlockNoteEditor.create({schema:createSchema(()=>{})});
-describe('Plam note format',()=>{
+describe('Palm note format',()=>{
   it('preserves equations, code, diagrams, highlights and stable note links',()=>{
     const editor=makeEditor();
     const markdown='# Functions\n\n==A variable `n` is captured.==\n\nInline $x^2$ and [[Scope]].\n\n$$\nf(x) = x^2 + 1\n$$\n\n```javascript\nconst price = "$x$";\n```\n\n```mermaid\nflowchart LR\n A --> B\n```';
