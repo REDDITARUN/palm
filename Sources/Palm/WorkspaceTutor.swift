@@ -86,6 +86,10 @@ extension AppStore {
     }
     func modelConfiguration(for role: String) -> ModelConfiguration {
         guard let profile = data.modelProfiles?.first(where: { $0.roles.contains(role) }) else { return configuration }
+        if let id = profile.providerID {
+            guard let connection = providerConnections.first(where: { $0.id == id }) else { return .init(key: "", endpoint: profile.endpoint, model: profile.model) }
+            var config = connection.configuration(key: connectionKey(connection)); config.model = profile.model; return config
+        }
         let config = ModelConfiguration(key: "", endpoint: profile.endpoint, model: profile.model)
         return ModelConfiguration(key: Keychain.read(config.credentialAccount) ?? (profile.endpoint == configuration.endpoint ? apiKey : ""), endpoint: profile.endpoint, model: profile.model)
     }

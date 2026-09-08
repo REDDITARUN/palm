@@ -8,7 +8,8 @@ The normal library is `~/Library/Application Support/Palm/`:
 | `Snapshots/` | Saved copies of imported source files |
 | `Runtime/` | Downloaded optional local tools |
 | `MemoryIndex/` | Rebuildable vector index and local embedding cache |
-| `AgentData/`, `Serena/` | Local agent working state |
+| `APIKeyAgentData/`, `Serena/` | Local agent working state |
+| `ChatGPTAgentData/`, `ChatGPTAgentConfig/` | Owner-only OpenCode subscription state, including its OAuth credential cache |
 | macOS Keychain | Model API keys, GitHub token, and other tool credentials |
 
 The app has no Palm account, hosted library, built-in cloud sync, or analytics service. Cloud AI is different from cloud storage: selected learning context is sent to the model provider you choose. Provider logging, training, retention, pricing, and limits apply. External tools and MCP services may also have their own network behavior and policies.
@@ -24,6 +25,10 @@ Use **Settings → Data → Back up library**. Keep the complete `.palmbackup` f
 Restore validates records/snapshots, preserves a previous SQLite backup, relocates source references, and rebuilds derived memory indexes. JSON import/export contains records only and is not equivalent to a full backup. Restoring an old backup can restore memories that were later forgotten.
 
 ## Remove data
+
+In **Settings → Model**, choose a saved API connection and **Forget API key** to remove its credential. ChatGPT connections have **Sign out**, which clears Palm's subscription authentication without signing other apps out. OpenCode manages the OAuth cache in Palm's protected support directory; API keys remain in Keychain. Neither is included in library backups or JSON exports.
+
+Use **Course actions → Delete course** to remove a course and its practice history. Notes, revision history, and flashcards are kept independently. In **Repositories**, **Remove…** forgets the imported repository and unlinks related courses. The original folder is untouched; snapshots cited by existing lessons remain available.
 
 Delete the application only to remove the executable; this preserves the library. To remove the library, quit Palm and delete its Application Support directory. Use Keychain Access to remove Palm credentials separately. Back up anything you wish to retain first.
 

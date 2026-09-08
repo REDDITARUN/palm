@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## 1.0.2 — 2026-09-08
+
+- Saved provider connections, explicit Save / Save & use, persistent custom model IDs, and Forget API key.
+- ChatGPT browser sign-in through OpenCode with isolated subscription credentials, model discovery, cancellation, and sign-out.
+- Task-specific model routes can share a saved provider connection.
+- Course deletion keeps notes and flashcards; repository removal preserves original files and saved lesson evidence.
+
 
 - Click a code element to select its AST node directly; expand or shrink to surrounding code without dragging or opening a menu.
 

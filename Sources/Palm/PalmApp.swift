@@ -128,7 +128,7 @@ struct SidebarView: View {
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         guard let store else { return .terminateNow }
         store.cancelWork(); store.tutorTask?.cancel(); store.save()
-        Task { await store.runtime.stop(); sender.reply(toApplicationShouldTerminate: true) }
+        Task { await store.chatGPTAuth.stop(); await store.runtime.stop(); sender.reply(toApplicationShouldTerminate: true) }
         return .terminateLater
     }
 }

@@ -5,11 +5,8 @@ struct SettingsView: View {
     @Environment(AppStore.self) private var store
     @State private var tab = "General"
     @State private var promptKind = TeachingPromptKind.beforeLesson
-    @State private var key = ""
     @State private var contextKey = ""
     @State private var githubKey = ""
-    @State private var checking = false
-    @State private var freeOnly = true
     @State private var reminders = false
     @State private var shortcuts = false
     @State private var status = ""
@@ -45,7 +42,7 @@ struct SettingsView: View {
             if let busy = store.busy { HStack { ProgressView().controlSize(.small); Text(busy).font(.system(size: 11)) } }
             }.padding(28)
         }.background(Palette.background).sheet(isPresented: $reminders) { DailyReminderSheet() }.sheet(isPresented: $shortcuts) { ShortcutGuide() }
-        .onAppear { key = store.apiKey; contextKey = Keychain.read("context7") ?? ""; githubKey = Keychain.read("github") ?? "" }
+        .onAppear { if !store.isUITesting { contextKey = Keychain.read("context7") ?? ""; githubKey = Keychain.read("github") ?? "" } }
         .confirmationDialog("Restore a saved library? Your current library will be backed up before replacement.", isPresented: $restoreConfirmation) { Button("Choose library backup…") { store.restoreLibrary() } }
         .alert("Settings need attention", isPresented: Binding(get: { store.error != nil }, set: { if !$0 { store.error = nil } })) { Button("OK") { store.error = nil } } message: { Text(store.error ?? "") }
     }
@@ -61,18 +58,7 @@ struct SettingsView: View {
 
         }
     }
-    private var model: some View {
-        Group {
-            field("Provider") { WorkspaceTabs(title: "Provider", selection: Binding(get: { store.providerName }, set: { value in store.selectProvider(value); key = store.apiKey; status = "" }), options: ["OpenAI", "OpenRouter", "Custom"].map { .init($0, $0) }) }
-            field("API key") { SecureField("Provider API key", text: $key).fieldStyle() }
-            field("OpenAI-compatible endpoint") { TextField("https://api.openai.com/v1", text: Binding(get: { store.data.preferences.endpoint }, set: { value in store.setEndpoint(value); key = store.apiKey })).fieldStyle() }
-            field("Model ID") { TextField("Model ID", text: Binding(get: { store.data.preferences.model }, set: { value in store.updatePreferences { $0.model = value } })).fieldStyle() }
-            HStack { Button { checking = true; Task { do { try await store.validateKey(key); status = "Connected. Your credential is saved in Keychain." } catch { store.error = error.localizedDescription }; checking = false } } label: { HStack { if checking { ProgressView().controlSize(.small) }; Text("Validate & save key") } }.buttonStyle(PrimaryButton()).disabled(key.isEmpty || checking); if !store.modelIDs.isEmpty { WorkspaceSelect(title: "Choose model", selection: Binding(get: { store.data.preferences.model }, set: { value in store.updatePreferences { $0.model = value } }), options: store.modelIDs.filter { !store.configuration.isOpenRouter || !freeOnly || $0.hasSuffix(":free") || $0 == "openrouter/free" }.map { .init($0, $0) }, searchable: true).frame(maxWidth: 260) } }
-            if store.configuration.requiresHarness { Label(store.toolsReady ? "Inkling uses the local OpenCode learning agent." : "Prepare local tools to use Inkling's free endpoint.", systemImage: "puzzlepiece.extension").font(.system(size: 11)).foregroundStyle(.secondary) }
-            if store.configuration.isOpenRouter { Toggle("Show free models only", isOn: $freeOnly); Text("Model IDs are used exactly as selected. Palm never switches a free model to a paid model automatically.").font(.system(size: 11)).foregroundStyle(.secondary) }
-            Text("Cloud models receive selected code, learning context, and questions. OpenAI enables live documentation search. OpenRouter supports generation, tutoring, grading, and Serena exploration. Semantic memory uses a local embedding model with every provider.").font(.system(size: 12)).foregroundStyle(.secondary).lineSpacing(5)
-        }
-    }
+    private var model: some View { ProviderSettingsView() }
     private var teaching: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Explanations that work for you").font(.system(size: 18, weight: .semibold))

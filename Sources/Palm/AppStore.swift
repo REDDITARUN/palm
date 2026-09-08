@@ -47,17 +47,21 @@ enum Destination: String, CaseIterable, Identifiable {
     let database: LocalDatabase
     let ai: AIService
     let repos: RepositoryService
+    let chatGPTAuth: OpenCodeAuthentication
+    var chatGPTConnected = false
+    var chatGPTModels: [String] = []
+    var testProviderKeys: [String: String] = [:]
     let runtime: RuntimeService
     var apiKey = ""
     var isUITesting: Bool
     var isLiveTesting: Bool
     private var lastRevision: [UUID: Date] = [:]
 
-    init() {
-        let testing = Bundle.main.bundleIdentifier == "app.plam.learning.test" || ProcessInfo.processInfo.arguments.contains("--ui-testing")
+    init(testDirectory: URL? = nil) {
+        let testing = testDirectory != nil || Bundle.main.bundleIdentifier == "app.plam.learning.test" || ProcessInfo.processInfo.arguments.contains("--ui-testing")
         isUITesting = testing
         isLiveTesting = ProcessInfo.processInfo.arguments.contains("--live-provider")
-        let testDir = ProcessInfo.processInfo.environment["PALM_TEST_DATA"].map { URL(fileURLWithPath: $0) } ?? FileManager.default.temporaryDirectory.appendingPathComponent("Palm-UITests")
+        let testDir = testDirectory ?? ProcessInfo.processInfo.environment["PALM_TEST_DATA"].map { URL(fileURLWithPath: $0) } ?? FileManager.default.temporaryDirectory.appendingPathComponent("Palm-UITests")
         do {
             database = try LocalDatabase(directory: testing ? testDir : nil)
             data = try database.load()
@@ -73,15 +77,20 @@ enum Destination: String, CaseIterable, Identifiable {
         }
         repos = RepositoryService(directory: database.directory)
         runtime = RuntimeService(directory: database.directory)
+        chatGPTAuth = OpenCodeAuthentication(directory: database.directory)
         ai = AIService(runtime: runtime)
-        apiKey = testing && !isLiveTesting ? "ui-test-key" : Keychain.read(ModelConfiguration(key: "", endpoint: data.preferences.endpoint, model: data.preferences.model).credentialAccount) ?? ""
-        if isUITesting && !isLiveTesting { data.preferences.endpoint = ProcessInfo.processInfo.environment["PALM_TEST_ENDPOINT"] ?? "http://127.0.0.1:49160/v1"; data.preferences.model = "test-model" }
+        if isUITesting && !isLiveTesting && data.preferences.providerConnections == nil {
+            data.preferences.endpoint = ProcessInfo.processInfo.environment["PALM_TEST_ENDPOINT"] ?? "http://127.0.0.1:49160/v1"; data.preferences.model = "test-model"
+        }
+        data.preferences.migrateProviders()
+        if testing && !isLiveTesting, let active = data.preferences.activeProvider, active.model == "test-model" { testProviderKeys[active.credentialAccount] = "ui-test-key" }
+        loadActiveConnection()
         for index in data.jobs.indices where data.jobs[index].status == "running" { data.jobs[index].status = "interrupted"; data.jobs[index].error = "The app closed. Retry the activity to resume." }
         try? database.save(data)
-        Task { toolsReady = await runtime.isReady() }
+        Task { toolsReady = await runtime.isReady(); if providerConnections.contains(where: { $0.authentication == .chatGPT }) { await refreshChatGPTStatus() } }
     }
     var enabledSkillInstructions: String { (data.agentSkills ?? []).filter(\.enabled).map(\.instructions).joined(separator: "\n") }
-    var configuration: ModelConfiguration { .init(key: apiKey, endpoint: data.preferences.endpoint, model: data.preferences.model) }
+    var configuration: ModelConfiguration { data.preferences.activeProvider?.configuration(key: apiKey) ?? .init(key: apiKey, endpoint: data.preferences.endpoint, model: data.preferences.model) }
     var activeSession: StudySession? { data.sessions.first { $0.id == activeSessionID } }
     var selectedCourse: Course? { data.courses.first { $0.id == selectedCourseID } }
     var dueReviews: [ReviewItem] { data.reviews.filter { !$0.paused && $0.due <= clock }.sorted { $0.due < $1.due } }
@@ -100,7 +109,16 @@ enum Destination: String, CaseIterable, Identifiable {
     func save(revision: NoteRevision? = nil) {
         do { try database.save(data, revision: revision) } catch { self.error = "Could not save your changes: \(error.localizedDescription)" }
     }
-    func updatePreferences(_ change: (inout Preferences) -> Void) { change(&data.preferences); save() }
+    func updatePreferences(_ change: (inout Preferences) -> Void) {
+        var preferences = data.preferences
+        change(&preferences)
+        let id = preferences.selectedProviderID, model = preferences.model, endpoint = preferences.endpoint
+        if let i = preferences.providerConnections?.firstIndex(where: { $0.id == id }) {
+            preferences.providerConnections?[i].model = model
+            preferences.providerConnections?[i].endpoint = endpoint
+        }
+        data.preferences = preferences; save()
+    }
     func openCourse(_ id: UUID) { selectedCourseID = id; activeSessionID = nil; destination = .courses }
     func navigate(_ route: Destination) { destination = route; activeSessionID = nil; selectedCourseID = nil }
     func updateSession(_ id: UUID, _ change: (inout StudySession) -> Void) {
@@ -134,20 +152,6 @@ enum Destination: String, CaseIterable, Identifiable {
         }
     }
     func cancelWork() { task?.cancel(); Task { await runtime.stop() } }
-    var providerName: String { configuration.isOpenRouter ? "OpenRouter" : (data.preferences.endpoint == "https://api.openai.com/v1" ? "OpenAI" : "Custom") }
-    func selectProvider(_ name: String) {
-        if name == "OpenRouter" { data.preferences.endpoint = "https://openrouter.ai/api/v1"; data.preferences.model = "thinkingmachines/inkling:free" }
-        else if name == "OpenAI" { data.preferences.endpoint = "https://api.openai.com/v1"; data.preferences.model = "gpt-4.1" }
-        else { data.preferences.endpoint = "http://localhost:1234/v1"; data.preferences.model = "" }
-        apiKey = Keychain.read(configuration.credentialAccount) ?? ""; modelIDs = []; save()
-    }
-    func setEndpoint(_ endpoint: String) { data.preferences.endpoint = endpoint; apiKey = Keychain.read(configuration.credentialAccount) ?? ""; modelIDs = []; save() }
-    func validateKey(_ key: String) async throws {
-        var config = configuration; config.key = key
-        let models = try await ai.validateKey(config)
-        if !isUITesting || isLiveTesting { try Keychain.save(key, account: config.credentialAccount) }
-        apiKey = key; modelIDs = models
-    }
     func createCourse(topic: String, level: String, repositoryID: UUID?, diagnostic: String) {
         run("Building your learning path…", kind: "course") { [self] in
             try await ensureLearningAgent()
@@ -156,7 +160,7 @@ enum Destination: String, CaseIterable, Identifiable {
                 context = try await repositoryContext(repo, topic: topic)
             } else {
                 busy = "Finding reliable learning sources…"
-                context = try await ai.documentation(topic: topic, config: configuration)
+                context = try await ai.documentation(topic: topic, config: modelConfiguration(for: "planning"))
             }
             busy = "Organizing fundamentals and checkpoints…"
             let outline = try await ai.outline(topic: topic, level: level, diagnostic: diagnostic, context: context + "\nTeaching preferences:\n" + TeachingPrompts.resolved(.curriculum, preferences: data.preferences) + "\n" + enabledSkillInstructions, config: modelConfiguration(for: "planning"))
@@ -175,7 +179,7 @@ enum Destination: String, CaseIterable, Identifiable {
             var context: String
             if let repo {
                 context = try await repositoryContext(repo, topic: lesson.title + " " + lesson.objective)
-            } else { context = try await ai.documentation(topic: course.topic + ": " + lesson.objective, config: configuration) }
+            } else { context = try await ai.documentation(topic: course.topic + ": " + lesson.objective, config: modelConfiguration(for: "lessons")) }
             busy = "Writing examples and checking questions…"
             let memories = await relevantMemories(query: lesson.objective, courseID: course.id) + "\n" + learningEvidence(course.id)
             let content = try await ai.lesson(course: course, lesson: lesson, context: context, memory: memories, review: review != nil, config: modelConfiguration(for: "lessons"), teachingPrompt: TeachingPrompts.resolved(.beforeLesson, preferences: data.preferences) + "\nQuestion design:\n" + TeachingPrompts.resolved(.questionDesign, preferences: data.preferences) + "\n" + enabledSkillInstructions)
@@ -269,7 +273,7 @@ enum Destination: String, CaseIterable, Identifiable {
     func repositoryContext(_ repo: Repository, topic: String) async throws -> String {
         var context = try await repos.context(for: repo, topic: topic)
         if let cached = data.repositoryInsights?.last(where: { $0.repositoryID == repo.id && $0.snapshotID == repo.snapshotID && $0.topic == topic }) { return context + "\n" + cached.summary }
-        if toolsReady, modelConfiguration(for: "research").agentProvider != nil {
+        if toolsReady {
             busy = "Following symbols, references, and tests…"
             let summary = try await runtime.explore(repository: repo, topic: topic, configuration: modelConfiguration(for: "research"))
             try Task.checkCancellation()
@@ -306,7 +310,7 @@ enum Destination: String, CaseIterable, Identifiable {
     }
     func ensureLearningAgent() async throws {
         try await runtime.configure(servers: data.mcpServers ?? [], skills: data.agentSkills ?? [])
-        if (configuration.requiresHarness || (data.modelProfiles ?? []).contains(where: { ModelConfiguration(key: "", endpoint: $0.endpoint, model: $0.model).requiresHarness })) && !toolsReady { if task != nil { busy = "Preparing your local learning agent for the first time…" }; try await runtime.prepare(); toolsReady = await runtime.isReady() }
+        if (configuration.requiresHarness || ["planning", "lessons", "grading", "notes", "tutor", "research"].contains(where: { modelConfiguration(for: $0).requiresHarness })) && !toolsReady { if task != nil { busy = "Preparing your local learning agent for the first time…" }; try await runtime.prepare(); toolsReady = await runtime.isReady() }
     }
     func prepareTools() {
         run("Preparing Serena and memory tools. This can take several minutes…", kind: "tools") { [self] in try await runtime.prepare(); toolsReady = await runtime.isReady(); notice = "Local exploration and memory tools are ready." }
@@ -373,8 +377,8 @@ enum Destination: String, CaseIterable, Identifiable {
             let isFolder = (try url.resourceValues(forKeys: [.isDirectoryKey])).isDirectory == true
             data = try isFolder ? database.restoreBackup(from: url) : database.restoreJSON(from: url)
             activeSessionID = nil; selectedCourseID = nil; selectedNoteID = nil; selectedExcerpt = ""; destination = .today
-            apiKey = isUITesting && !isLiveTesting ? "ui-test-key" : Keychain.read(configuration.credentialAccount) ?? ""
-            modelIDs = []; lastRevision = [:]
+            loadActiveConnection(); lastRevision = [:]
+            Task { await refreshChatGPTStatus() }
             notice = "Library restored. A backup of the previous library was saved."
             Task { await indexMemories() }
         } catch { self.error = error.localizedDescription }

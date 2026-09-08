@@ -12,3 +12,5 @@ Status: accepted, recorded 2026-09-07. These records describe the implemented ar
 - [0007 — Palm name and shared learning surfaces](0007-palm-brand-and-reading-surfaces.md)
 
 - [0008 — Distribution checks and macOS warning handling](0008-distribution-security-gate.md)
+
+- [0009 — Saved provider connections and ChatGPT authentication](0009-saved-connections-and-chatgpt.md)

@@ -226,7 +226,11 @@ public enum Keychain {
     }
     public static func save(_ value: String, account: String) throws {
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service, kSecAttrAccount as String: account]
-        if value.isEmpty { SecItemDelete(query as CFDictionary); return }
+        if value.isEmpty {
+            let status = SecItemDelete(query as CFDictionary)
+            guard status == errSecSuccess || status == errSecItemNotFound else { throw PalmError.message("Keychain could not remove the credential (\(status)).") }
+            return
+        }
         let attributes: [String: Any] = [kSecValueData as String: Data(value.utf8)]
         var status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
         if status == errSecItemNotFound {

@@ -43,6 +43,7 @@ struct CoursesView: View {
 struct CourseDetailView: View {
     @Environment(AppStore.self) private var store
     @State private var showOutcomes = false
+    @State private var deleteConfirmation = false
     var courseID: UUID
     var body: some View {
         if let course = store.data.courses.first(where: { $0.id == courseID }) {
@@ -53,7 +54,8 @@ struct CourseDetailView: View {
                         Spacer()
                         ActionPopover(title: "Course actions", actions: [
                             WorkspaceAction(title: course.archived ? "Unarchive course" : "Archive course", icon: "archivebox") { if let i = store.data.courses.firstIndex(where: { $0.id == courseID }) { store.data.courses[i].archived.toggle(); store.save() } },
-                            WorkspaceAction(title: "Create a related course", icon: "plus") { store.newCourseTopic = course.outline.title; store.showingNewCourse = true }
+                            WorkspaceAction(title: "Create a related course", icon: "plus") { store.newCourseTopic = course.outline.title; store.showingNewCourse = true },
+                            WorkspaceAction(title: "Delete course…", icon: "trash") { deleteConfirmation = true }
                         ])
                     }
                     PageHeading(eyebrow: "", title: course.outline.title, subtitle: course.outline.summary)
@@ -75,6 +77,10 @@ struct CourseDetailView: View {
                     }
                 }.frame(maxWidth: 980, alignment: .leading).padding(32).frame(maxWidth: .infinity, alignment: .top)
             }
+            .alert("Delete “\(course.outline.title)”?", isPresented: $deleteConfirmation) {
+                Button("Cancel", role: .cancel) {}
+                Button("Delete course", role: .destructive) { store.deleteCourse(courseID) }
+            } message: { Text("This removes its lessons, attempts, topic reviews, and course memories. Your notes and flashcards are kept. This cannot be undone.") }
         }
     }
 }
@@ -137,7 +143,7 @@ struct NewCourseView: View {
                             if diagnosing { ProgressView().controlSize(.small) }
                             Label(diagnosing ? "Preparing your starting check…" : "Try a quick starting check", systemImage: "sparkle.magnifyingglass")
                         }
-                    }.buttonStyle(QuietButton()).disabled(topic.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || store.apiKey.isEmpty || diagnosing)
+                    }.buttonStyle(QuietButton()).disabled(topic.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !store.hasModelAccess(for: "planning") || diagnosing)
                     Text("Three quick questions with choices. Skip anything you're unsure about.").font(.system(size: 12)).foregroundStyle(.secondary)
                 } else {
                     diagnosticCard
@@ -146,8 +152,8 @@ struct NewCourseView: View {
                     Button("Skip the remaining questions") { advanceDiagnostic(diagnosticQuestions.count - diagnosticIndex) }.buttonStyle(TextActionStyle()).font(.system(size: 12)).foregroundStyle(.secondary)
                 } else {
                 Divider()
-                if store.apiKey.isEmpty { Label("Add a model key in Settings before creating a course.", systemImage: "key").font(.system(size: 12)).foregroundStyle(.secondary); SettingsLink { Text("Open Settings") } }
-                HStack { Text("You can adjust the course as you learn.").font(.system(size: 11)).foregroundStyle(.secondary); Spacer(); Button { store.createCourse(topic: topic, level: level, repositoryID: repositoryID, diagnostic: diagnostic + "\n" + diagnosticQuestions.map { "Q: \($0.prompt) A: \(diagnosticAnswers[$0.id, default: "Not answered"])" }.joined(separator: "\n")) } label: { Label("Create course", systemImage: "arrow.right") }.buttonStyle(PrimaryButton()).disabled(topic.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || store.apiKey.isEmpty || store.busy != nil || diagnosing).accessibilityIdentifier("build-course")
+                if !store.hasModelAccess(for: "planning") { Label("Connect a model in Settings before creating a course.", systemImage: "key").font(.system(size: 12)).foregroundStyle(.secondary); SettingsLink { Text("Open Settings") } }
+                HStack { Text("You can adjust the course as you learn.").font(.system(size: 11)).foregroundStyle(.secondary); Spacer(); Button { store.createCourse(topic: topic, level: level, repositoryID: repositoryID, diagnostic: diagnostic + "\n" + diagnosticQuestions.map { "Q: \($0.prompt) A: \(diagnosticAnswers[$0.id, default: "Not answered"])" }.joined(separator: "\n")) } label: { Label("Create course", systemImage: "arrow.right") }.buttonStyle(PrimaryButton()).disabled(topic.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !store.hasModelAccess(for: "planning") || store.busy != nil || diagnosing).accessibilityIdentifier("build-course")
                 }
                 }
                 if let error = store.error { Text(error).font(.system(size: 12)).foregroundStyle(.red).textSelection(.enabled).padding(12).frame(maxWidth: .infinity, alignment: .leading).background(Color.red.opacity(0.07), in: .rect(cornerRadius: 10)) }
@@ -201,7 +207,7 @@ struct NewCourseView: View {
             defer { if !Task.isCancelled { diagnosing = false } }
             do {
                 try await store.ensureLearningAgent()
-                let check = try await store.ai.diagnostic(topic: topic, level: level, config: store.configuration)
+                let check = try await store.ai.diagnostic(topic: topic, level: level, config: store.modelConfiguration(for: "planning"))
                 try Task.checkCancellation()
                 withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) { diagnosticQuestions = check.questions; diagnosticIndex = 0 }
             } catch { if !Task.isCancelled { store.error = error.localizedDescription } }

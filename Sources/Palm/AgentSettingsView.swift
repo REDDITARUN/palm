@@ -30,38 +30,48 @@ struct ModelProfileEditor: View {
     @Environment(\.dismiss) private var dismiss
     @State var profile: ModelProfile
     @State private var key = ""
-    @State private var validating = false
     @State private var error = ""
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             Text("Model profile").font(.system(size: 20, weight: .semibold))
             TextField("Name", text: $profile.name).fieldStyle()
-            TextField("API base URL", text: $profile.endpoint).fieldStyle()
-            TextField("Model ID", text: $profile.model).fieldStyle()
-            SecureField("API key · leave empty to reuse the provider key", text: $key).fieldStyle()
+            WorkspaceSelect(title: "Saved connection", selection: Binding(get: { profile.providerID?.uuidString ?? "manual" }, set: { value in
+                profile.providerID = UUID(uuidString: value)
+                if let provider = store.providerConnections.first(where: { $0.id == profile.providerID }) { profile.endpoint = provider.endpoint; if profile.model.isEmpty { profile.model = provider.model } }
+            }), options: [.init("manual", "Separate API connection")] + store.providerConnections.map { .init($0.id.uuidString, $0.name) })
+            if profile.providerID == nil {
+                TextField("API base URL", text: $profile.endpoint).fieldStyle()
+                SecureField("API key · leave empty to reuse the provider key", text: $key).fieldStyle()
+            }
+            TextField("Exact model ID", text: $profile.model).fieldStyle()
+            Text("Saved connections share their credentials and sign-in method. Custom model IDs do not need to appear in a model list.").font(.system(size: 12)).foregroundStyle(.secondary)
             Text("Use for").font(.system(size: 12, weight: .medium))
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], alignment: .leading) { ForEach(["planning", "lessons", "grading", "notes", "tutor", "research"], id: \.self) { role in Toggle(role.capitalized, isOn: Binding(get: { profile.roles.contains(role) }, set: { enabled in profile.roles.removeAll { $0 == role }; if enabled { profile.roles.append(role) } })).toggleStyle(.checkbox).font(.system(size: 11)) } }
             if !error.isEmpty { Text(error).font(.system(size: 12)).foregroundStyle(.red) }
-            HStack { Button("Cancel") { dismiss() }.buttonStyle(QuietButton()); Button("Delete") { store.data.modelProfiles?.removeAll { $0.id == profile.id }; store.save(); dismiss() }.buttonStyle(TextActionStyle()); Spacer(); Button(validating ? "Validating…" : "Validate and save") { save() }.buttonStyle(PrimaryButton()).disabled(validating || profile.model.isEmpty) }
+            HStack { Button("Cancel") { dismiss() }.buttonStyle(QuietButton()); Button("Delete") { store.data.modelProfiles?.removeAll { $0.id == profile.id }; store.save(); dismiss() }.buttonStyle(TextActionStyle()); Spacer(); Button("Save") { save() }.buttonStyle(PrimaryButton()).disabled(profile.model.isEmpty) }
         }.padding(28).frame(width: 620)
     }
     private func save() {
-        validating = true
-        Task {
-            defer { validating = false }
-            do {
-                let config = ModelConfiguration(key: "", endpoint: profile.endpoint, model: profile.model)
-                let credential = key.isEmpty ? (Keychain.read(config.credentialAccount) ?? (profile.endpoint == store.configuration.endpoint ? store.apiKey : "")) : key
-                let models = try await store.ai.validateKey(.init(key: credential, endpoint: profile.endpoint, model: profile.model))
-                guard models.contains(profile.model) else { error = "This provider did not list that model. Check the exact model ID."; return }
-                if !key.isEmpty { try Keychain.save(key, account: config.credentialAccount); if profile.endpoint == store.configuration.endpoint { store.apiKey = key } }
-                if store.data.modelProfiles == nil { store.data.modelProfiles = [] }
-                for i in store.data.modelProfiles!.indices { store.data.modelProfiles?[i].roles.removeAll { profile.roles.contains($0) } }
-                store.data.modelProfiles?.removeAll { $0.id == profile.id }; store.data.modelProfiles?.append(profile); store.save(); dismiss()
-            } catch { self.error = error.localizedDescription }
-        }
+        do {
+            profile.model = profile.model.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !profile.model.isEmpty else { throw PalmError.message("Enter a model ID.") }
+            if profile.providerID == nil {
+                var provider = ProviderConnection(name: profile.name.isEmpty ? "Custom route" : profile.name, endpoint: profile.endpoint, model: profile.model)
+                let legacy = ModelConfiguration(key: "", endpoint: profile.endpoint, model: profile.model)
+                provider.legacyCredentialAccount = legacy.credentialAccount
+                provider = try provider.validated()
+                try store.saveConnection(provider, replacementKey: key, activate: false)
+                profile.providerID = provider.id; profile.endpoint = provider.endpoint
+            }
+            var next = store.data
+            if next.modelProfiles == nil { next.modelProfiles = [] }
+            for i in next.modelProfiles!.indices { next.modelProfiles?[i].roles.removeAll { profile.roles.contains($0) } }
+            next.modelProfiles?.removeAll { $0.id == profile.id }; next.modelProfiles?.append(profile)
+            try store.database.save(next); store.data = next; dismiss()
+        } catch { self.error = error.localizedDescription }
     }
 }
+
 struct MCPProfileEditor: View {
     @Environment(AppStore.self) private var store
     @Environment(\.dismiss) private var dismiss

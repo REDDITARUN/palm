@@ -42,7 +42,7 @@ struct NoteFlashcardsView: View {
                     Button { editingCard = Flashcard(noteID: noteID, front: "", back: "") } label: { Label("New card", systemImage: "plus") }.buttonStyle(QuietButton())
                 }
                 HStack(spacing: 12) {
-                    Button("Generate from note") { generate() }.buttonStyle(QuietButton()).disabled(store.busy != nil || store.apiKey.isEmpty || store.data.notes.first(where: { $0.id == noteID })?.body.isEmpty != false)
+                    Button("Generate from note") { generate() }.buttonStyle(QuietButton()).disabled(store.busy != nil || !store.hasModelAccess(for: "notes") || store.data.notes.first(where: { $0.id == noteID })?.body.isEmpty != false)
                     Spacer()
                     Text("\(cards.count) cards · \(due.count) due").font(.system(size: 12)).foregroundStyle(.secondary)
                     if !due.isEmpty { Button("Review due cards") { review = CardReviewRequest(ids: due.map(\.id)) }.buttonStyle(PrimaryButton()) }

@@ -12,6 +12,8 @@ public struct Preferences: Codable, Equatable {
     public var endpoint = "https://openrouter.ai/api/v1"
     public var appearance = "system"
     public var onboardingComplete = false
+    public var providerConnections: [ProviderConnection]?
+    public var selectedProviderID: UUID?
     public var teachingPrompts: [String: String]?
     public var featuredBadgeIDs: [String]?
     public var showStreak: Bool?

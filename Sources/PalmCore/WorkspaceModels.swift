@@ -11,6 +11,7 @@ public struct TutorConversation: Codable, Identifiable, Equatable {
     public init(id: String) { self.id = id }
 }
 public struct ModelProfile: Codable, Identifiable, Equatable {
+    public var providerID: UUID?
     public var id = UUID()
     public var name = ""
     public var endpoint = "https://openrouter.ai/api/v1"

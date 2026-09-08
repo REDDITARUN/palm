@@ -14,11 +14,11 @@ This approves this app specifically; do not disable Gatekeeper globally. These i
 
 ## 2. Connect a model
 
-**Easy starting point:** choose OpenRouter, [create a key](https://openrouter.ai/settings/keys), paste it into Palm, and keep `thinkingmachines/inkling:free` as the model. Choose **Connect & continue**. Your first generated session may take longer while local learning tools are downloaded.
+**Easy starting point:** choose OpenRouter, [create a key](https://openrouter.ai/settings/keys), paste it into Palm, and keep `thinkingmachines/inkling:free` as the model. Choose **Save & use**, then **Continue**. Your first generated session may take longer while local learning tools are downloaded.
 
 Free models have limits and can become unavailable. Inkling free is a research endpoint that logs prompts/outputs for model improvement and disallows confidential/personal material. [Read its current terms](https://openrouter.ai/thinkingmachines/inkling:free). You can choose another free or paid model in Settings; Palm never silently upgrades you to a paid one.
 
-For OpenAI, choose OpenAI and use an [API key](https://platform.openai.com/api-keys). API usage is separate from ChatGPT billing. Settings also accepts custom compatible endpoints. You may skip the key to explore the app, but generation needs a working model.
+For OpenAI, choose OpenAI and use an [API key](https://platform.openai.com/api-keys). API usage is separate from ChatGPT billing. To use a ChatGPT subscription, choose **ChatGPT → Add connection → Sign in with ChatGPT**, finish sign-in in your browser, choose a model, and **Save & use**. Available Codex models and limits depend on your account. Settings also accepts custom compatible endpoints. You may skip the key to explore the app, but generation needs a working model.
 
 ## 3. Pick something you want to understand
 

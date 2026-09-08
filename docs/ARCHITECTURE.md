@@ -11,7 +11,7 @@ flowchart LR
   Store --> AI[AIService]
   AI --> Direct[OpenAI-compatible API]
   AI --> Harness[OpenCode learning agent]
-  Harness --> Models[OpenRouter]
+  Harness --> Models[OpenRouter / ChatGPT / compatible repository providers]
   Store --> Snapshot[Immutable source snapshots]
   Harness --> Serena[Serena / language servers]
   Store --> Memory[Mem0 / local Qdrant index]
@@ -32,3 +32,5 @@ Topic/repository → diagnostic → generated outline → lesson with examples a
 Local graph links come from note links, course ownership, and saved learning memories. Shared-tag suggestions are labeled as suggestions, not invented evidence. Graph camera state lives in the native canvas to keep pointer interaction out of SwiftUI's inspector updates.
 
 See [ADRs](adr/README.md) for tradeoffs, [data/privacy](DATA_AND_PRIVACY.md) for persistence, and [development](DEVELOPMENT.md) for builds and tests.
+
+Provider forms save independent named connections. ChatGPT subscription requests use isolated OpenCode OAuth state; API-key connections retain separate credentials and billing. See [ADR 0009](adr/0009-saved-connections-and-chatgpt.md).

@@ -139,6 +139,8 @@ struct NoteEditorView: View {
 }
 
 struct RepositoriesView: View {
+    @State private var removing: Repository?
+    @State private var removeConfirmation = false
     @Environment(AppStore.self) private var store
     @State private var remote = ""
     var body: some View {
@@ -163,10 +165,14 @@ struct RepositoriesView: View {
                         DisclosureGroup("Saved understanding · \(insights.count) explorations") { VStack(alignment: .leading, spacing: 16) { ForEach(insights) { insight in VStack(alignment: .leading, spacing: 8) { Text(insight.topic).font(.system(size: 13, weight: .semibold)); MarkdownReading(text: insight.summary) } } }.padding(.top, 12) }.font(.system(size: 12))
                     }
                     if repo.stale { Text("The original files have changed. Refresh to use the latest code; past lessons retain their saved evidence.").font(.system(size: 12)).foregroundStyle(.orange) }
-                    HStack { Button("Build a course") { store.newCourseRepositoryID = repo.id; store.showingNewCourse = true }.buttonStyle(PrimaryButton()); Button("Refresh snapshot") { store.refresh(repo) }.buttonStyle(QuietButton()); Spacer(); Text("Imported \(repo.importedAt.formatted(.dateTime.month(.abbreviated).day()))").font(.system(size: 10)).foregroundStyle(.tertiary) }.disabled(store.busy != nil)
+                    HStack { Button("Build a course") { store.newCourseRepositoryID = repo.id; store.showingNewCourse = true }.buttonStyle(PrimaryButton()); Button("Refresh snapshot") { store.refresh(repo) }.buttonStyle(QuietButton()); Button("Remove…") { removing = repo; removeConfirmation = true }.buttonStyle(TextActionStyle()); Spacer(); Text("Imported \(repo.importedAt.formatted(.dateTime.month(.abbreviated).day()))").font(.system(size: 10)).foregroundStyle(.tertiary) }.disabled(store.busy != nil)
                 }
             } }
         }.padding(34) }
+        .alert("Remove “\(removing?.name ?? "repository")” from Palm?", isPresented: $removeConfirmation) {
+            Button("Cancel", role: .cancel) { removing = nil }
+            Button("Remove repository", role: .destructive) { if let removing { store.removeRepository(removing.id) }; removing = nil }
+        } message: { Text("Your original repository folder is untouched. Existing courses, notes, and source snapshots used by saved lessons are kept.") }
     }
     private func chooseFolder() { let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; panel.prompt = "Open repository"; if panel.runModal() == .OK, let url = panel.url { store.importRepository(url) } }
 }
