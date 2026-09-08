@@ -25,6 +25,14 @@ enum SyntaxSelection {
         let count = code.utf16.count
         return range.location != NSNotFound && range.location >= 0 && range.length >= 0 && range.location <= count && range.length <= count - range.location
     }
+    /// Hit a character, rather than a zero-width insertion boundary, so clicking
+    /// punctuation selects its enclosing expression and names select that name.
+    static func element(code: String, language: String?, at offset: Int) -> SyntaxChoice? {
+        let source = code as NSString
+        guard offset >= 0, offset < source.length else { return nil }
+        if let scalar = UnicodeScalar(source.character(at: offset)), CharacterSet.whitespacesAndNewlines.contains(scalar) { return nil }
+        return ancestors(code: code, language: language, range: NSRange(location: offset, length: 1)).first
+    }
     static func ancestors(code: String, language hint: String?, range: NSRange) -> [SyntaxChoice] {
         guard code.utf16.count < 100_000, !code.isEmpty, valid(range, in: code), let language = language(for: hint)?.language else { return [] }
         let parser = Parser()
@@ -53,13 +61,13 @@ enum SyntaxSelection {
 /// bridge compares cursorPositions with itself and never applies requested ranges.
 final class SyntaxSelectionController: NSObject, TextViewCoordinator {
     weak var controller: TextViewController?
+    var syntaxEnabled = true
     private var clickRecognizer: NSClickGestureRecognizer?
     func prepareCoordinator(controller: TextViewController) {
         destroy()
         self.controller = controller
-        // CodeEditTextView skips single-click positioning when isEditable is false.
-        // A non-delaying click recognizer restores it without enabling code editing
-        // or intercepting dragging, scrolling, and the editor's word selection.
+        // Make read-only code directly explorable: one click selects the AST node.
+        // Do not delay normal dragging or enable editing of the question's source.
         let click = NSClickGestureRecognizer(target: self, action: #selector(positionCursor(_:)))
         click.delaysPrimaryMouseButtonEvents = false
         controller.textView.addGestureRecognizer(click)
@@ -70,12 +78,17 @@ final class SyntaxSelectionController: NSObject, TextViewCoordinator {
         clickRecognizer = nil
         controller = nil
     }
-    @objc private func positionCursor(_ gesture: NSClickGestureRecognizer) {
+    @MainActor @objc private func positionCursor(_ gesture: NSClickGestureRecognizer) {
         guard let controller, !controller.textView.isEditable,
               (NSApp.currentEvent?.clickCount ?? 1) == 1,
               let offset = controller.textView.layoutManager.textOffsetAtPoint(gesture.location(in: controller.textView)) else { return }
-        controller.setCursorPositions([CursorPosition(range: NSRange(location: offset, length: 0))], scrollToVisible: false)
-        controller.textView.window?.makeFirstResponder(controller.textView)
+        selectElement(at: offset)
+    }
+    @MainActor @discardableResult
+    func selectElement(at offset: Int) -> Bool {
+        guard syntaxEnabled, let controller,
+              let choice = SyntaxSelection.element(code: controller.textView.string, language: controller.language.id.rawValue, at: offset) else { return false }
+        return select(choice, in: controller.textView.string)
     }
     @MainActor @discardableResult
     func select(_ choice: SyntaxChoice, in code: String) -> Bool {

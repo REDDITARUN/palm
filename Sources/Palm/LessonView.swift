@@ -249,20 +249,42 @@ struct CodeReadingView: View {
         guard let range = state.cursorPositions?.first?.range, range.length > 0, SyntaxSelection.valid(range, in: code) else { return "" }
         return (code as NSString).substring(with: range)
     }
+    private var selectedSyntaxIndex: Int? {
+        guard let range = state.cursorPositions?.first?.range else { return nil }
+        return syntaxChoices.firstIndex { $0.range == range }
+    }
+    private var parentSyntax: SyntaxChoice? {
+        let index = selectedSyntaxIndex.map { $0 + 1 } ?? 0
+        return syntaxChoices.indices.contains(index) ? syntaxChoices[index] : nil
+    }
+    private var childSyntax: SyntaxChoice? {
+        guard let index = selectedSyntaxIndex, index > 0 else { return nil }
+        return syntaxChoices[index - 1]
+    }
+    private func chooseSyntax(_ choice: SyntaxChoice?) {
+        guard let choice, selectionController.select(choice, in: code) else { return }
+        onSelection(choice.text)
+    }
     private func updateSyntax() {
         guard let range = state.cursorPositions?.first?.range else { syntaxChoices = []; return }
-        syntaxChoices = SyntaxSelection.ancestors(code: code, language: languageHint, range: range)
+        // Keep the clicked child's path while expanding, so Shrink can return to it.
+        if !syntaxChoices.contains(where: { $0.range == range }) {
+            syntaxChoices = SyntaxSelection.ancestors(code: code, language: languageHint, range: range)
+        }
     }
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
-                ActionPopover(title: "Select syntax", icon: "scope", textLabel: true, actions: syntaxChoices.map { item in
-                    WorkspaceAction(title: item.title, icon: "curlybraces", detail: item.detail, identity: item.id) {
-                        if selectionController.select(item, in: code) { onSelection(item.text) }
-                    }
-                }).disabled(syntaxChoices.isEmpty).help(resolvedLanguage == nil ? "Choose the code language first" : "Click inside the code, then choose an expression or enclosing block")
+                Text(selectedSyntaxIndex.map { syntaxChoices[$0].title } ?? (resolvedLanguage == nil ? "Choose a language" : "Click code to explore"))
+                    .font(.system(size: 11)).foregroundStyle(Palette.studyMuted).lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Button { chooseSyntax(childSyntax) } label: { Image(systemName: "arrow.down.right.and.arrow.up.left") }
+                    .buttonStyle(IconButton()).disabled(childSyntax == nil)
+                    .accessibilityLabel("Shrink code selection").help("Return to the smaller code element")
+                Button { chooseSyntax(parentSyntax) } label: { Image(systemName: "arrow.up.left.and.arrow.down.right") }
+                    .buttonStyle(IconButton()).disabled(parentSyntax == nil)
+                    .accessibilityLabel("Expand code selection").help(parentSyntax.map { "Include enclosing " + $0.title.lowercased() } ?? "Click a code element first")
                 if let onAsk { Button { onAsk(selectedText) } label: { Label("Ask", systemImage: "bubble.left") }.buttonStyle(TextActionStyle()).disabled(selectedText.isEmpty).help("Ask the tutor about the selected code").accessibilityLabel("Ask about selected code") }
-                Spacer(minLength: 0)
                 ActionPopover(title: languageHint ?? "Language", icon: "chevron.down", textLabel: true, searchable: true, actions: ["python", "javascript", "typescript", "swift", "java", "rust", "go", "c", "cpp", "bash"].map { name in
                     WorkspaceAction(title: name, selected: resolvedLanguage?.id.rawValue.lowercased() == name) { languageOverride = name }
                 }).accessibilityLabel("Code language")
@@ -273,7 +295,11 @@ struct CodeReadingView: View {
                     updateSyntax()
                     if !selectedText.isEmpty { onSelection(selectedText) }
                 }
-                .onChange(of: languageOverride) { updateSyntax() }
+                .onAppear { selectionController.syntaxEnabled = resolvedLanguage != nil }
+                .onChange(of: resolvedLanguage?.id) {
+                    selectionController.syntaxEnabled = resolvedLanguage != nil
+                    syntaxChoices = []; updateSyntax()
+                }
                 .onChange(of: code) { syntaxChoices = []; state = SourceEditorState(); languageOverride = "" }
                 .padding(.horizontal, 22).padding(.bottom, 18)
         }.background(Palette.studyFill).clipShape(.rect(cornerRadius: 14))

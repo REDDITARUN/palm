@@ -107,7 +107,7 @@ struct WorkspaceTutor: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 22) {
                         if conversation.messages.isEmpty {
-                            VStack(alignment: .leading, spacing: 8) { Text("Make the idea clearer").font(.system(size: 16, weight: .semibold)); Text(scope.hasPrefix("note:") ? "Ask a question, select a passage, or describe a change to this note." : "Ask about this step or select part of the code.").font(.system(size: 13)).foregroundStyle(.secondary).lineSpacing(4) }.padding(.vertical, 22)
+                            VStack(alignment: .leading, spacing: 8) { Text("Make the idea clearer").font(.system(size: 16, weight: .semibold)); Text(scope.hasPrefix("note:") ? "Ask a question, select a passage, or describe a change to this note." : "Ask about this step or click a code element.").font(.system(size: 13)).foregroundStyle(.secondary).lineSpacing(4) }.padding(.vertical, 22)
                         }
                         ForEach(conversation.messages.filter { !running || $0.id != store.tutorMessageID }) { message in
                             VStack(alignment: .leading, spacing: 10) {
