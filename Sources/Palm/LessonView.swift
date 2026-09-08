@@ -233,6 +233,22 @@ struct QuestionView: View {
     private func move(_ item: String, by offset: Int) { guard let i = order.firstIndex(of: item), order.indices.contains(i + offset) else { return }; order.swapAt(i, i + offset); draft.wrappedValue = order.joined(separator: " → ") }
 }
 
+/// Code brackets distinguish AST scope changes from window resizing.
+private struct CodeSelectionIcon: View {
+    var expands: Bool
+    var body: some View {
+        HStack(spacing: 2) {
+            Image(systemName: "chevron.left")
+            Image(systemName: expands ? "plus" : "minus")
+                .font(.system(size: 8, weight: .semibold))
+            Image(systemName: "chevron.right")
+        }
+        .font(.system(size: 11, weight: .medium))
+        .frame(width: 24, height: 18)
+        .accessibilityHidden(true)
+    }
+}
+
 struct CodeReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
     var code: String
@@ -278,10 +294,10 @@ struct CodeReadingView: View {
                 Text(selectedSyntaxIndex.map { syntaxChoices[$0].title } ?? (resolvedLanguage == nil ? "Choose a language" : "Click code to explore"))
                     .font(.system(size: 11)).foregroundStyle(Palette.studyMuted).lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Button { chooseSyntax(childSyntax) } label: { Image(systemName: "arrow.down.right.and.arrow.up.left") }
+                Button { chooseSyntax(childSyntax) } label: { CodeSelectionIcon(expands: false) }
                     .buttonStyle(IconButton()).disabled(childSyntax == nil)
                     .accessibilityLabel("Shrink code selection").help("Return to the smaller code element")
-                Button { chooseSyntax(parentSyntax) } label: { Image(systemName: "arrow.up.left.and.arrow.down.right") }
+                Button { chooseSyntax(parentSyntax) } label: { CodeSelectionIcon(expands: true) }
                     .buttonStyle(IconButton()).disabled(parentSyntax == nil)
                     .accessibilityLabel("Expand code selection").help(parentSyntax.map { "Include enclosing " + $0.title.lowercased() } ?? "Click a code element first")
                 if let onAsk { Button { onAsk(selectedText) } label: { Label("Ask", systemImage: "bubble.left") }.buttonStyle(TextActionStyle()).disabled(selectedText.isEmpty).help("Ask the tutor about the selected code").accessibilityLabel("Ask about selected code") }
