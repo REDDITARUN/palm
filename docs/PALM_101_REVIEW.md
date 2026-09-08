@@ -1,5 +1,7 @@
 # Palm 1.0.1 review
 
+> Historical review: this installer is now in draft after a reported macOS security alert. See [current release status](RELEASING.md).
+
 Reviewed September 7, 2026.
 
 - 67 native offline tests passed, including opening an existing library through the renamed app's directory resolver; 6 opt-in live-provider tests skipped.

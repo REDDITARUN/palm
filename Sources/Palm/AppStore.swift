@@ -42,6 +42,8 @@ enum Destination: String, CaseIterable, Identifiable {
     var toolsReady = false
     var modelIDs: [String] = []
     var selectedExcerpt = ""
+    var lessonTutorRequest = UUID()
+    func askAboutCode(_ text: String) { selectedExcerpt = text; lessonTutorRequest = UUID() }
     let database: LocalDatabase
     let ai: AIService
     let repos: RepositoryService

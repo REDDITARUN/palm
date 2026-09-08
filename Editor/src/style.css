@@ -16,7 +16,7 @@
 :root.dark{--background:#1b1d1c;--foreground:#e5e7e6;--card:#242726;--popover:#242726;--primary:#96b6a1;--primary-foreground:#1b211d;--secondary:#303432;--muted:#2b302d;--muted-foreground:#a1aaa4;--accent:#303e35;--border:#3a403c}
 :root{color-scheme:light dark;font-family:-apple-system,BlinkMacSystemFont,Inter,sans-serif;background:transparent}body{margin:0;background:transparent}main{padding:12px 8px 100px;min-height:calc(100vh - 120px)}
 .bn-container{--bn-font-family:-apple-system,BlinkMacSystemFont,Inter,sans-serif;--bn-colors-editor-background:transparent;--bn-colors-editor-text:#292b2e;--bn-border-radius:7px}.bn-container[data-color-scheme=dark]{--bn-colors-editor-text:#e3e4e6;--bn-colors-editor-background:transparent}
-.bn-editor{padding-inline:42px;font-size:15px;line-height:1.7;max-width:720px;margin:auto;min-height:60vh}.bn-block-content[data-content-type=heading]{margin-top:20px}.bn-block-content[data-content-type=heading][data-level='1']{font-size:25px}.bn-block-content[data-content-type=heading][data-level='2']{font-size:20px}.bn-block-content[data-content-type=heading][data-level='3']{font-size:17px}
+.bn-editor{padding-inline:42px;font-size:15px;line-height:normal;max-width:720px;margin:auto;min-height:60vh}.bn-block-content[data-content-type=heading]{margin-top:20px}.bn-block-content[data-content-type=heading][data-level='1']{font-size:25px}.bn-block-content[data-content-type=heading][data-level='2']{font-size:20px}.bn-block-content[data-content-type=heading][data-level='3']{font-size:17px}
 .bn-editor code{font-size:13px}.bn-side-menu{opacity:.7}.bn-side-menu:hover{opacity:1}button{cursor:pointer}button:focus-visible{outline:2px solid #6c8b77;outline-offset:2px}a{color:#507760}::selection{background:#a8c8b666}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
@@ -35,11 +35,18 @@
 .bn-editor :not(pre)>code{background:var(--study-fill);color:var(--study-ink);padding:2px 5px;border-radius:5px;font-size:.9em}
 .bn-editor [data-style-type=backgroundColor][data-value=yellow]{background:var(--study-highlight);color:var(--study-ink);border-radius:1px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 .bn-editor .bn-block-content[data-content-type=codeBlock]{background:var(--study-fill);color:var(--study-ink);border:0;border-radius:14px;position:relative;margin:12px 0}
-.bn-editor .bn-block-content[data-content-type=codeBlock]>pre{padding:28px 24px 24px;line-height:1.8;overflow:auto;background:transparent}
-.bn-editor .bn-block-content[data-content-type=codeBlock]>pre>code{color:var(--study-ink);font:13px/1.8 ui-monospace,SFMono-Regular,Menlo,monospace;background:transparent}
+.bn-editor .bn-block-content[data-content-type=codeBlock]>pre{padding:28px 24px 24px;font:13px/normal ui-monospace,SFMono-Regular,Menlo,monospace;overflow:auto;background:transparent}
+.bn-editor .bn-block-content[data-content-type=codeBlock]>pre>code{color:var(--study-ink);font:inherit;background:transparent}
 .bn-editor .bn-block-content[data-content-type=codeBlock]::before{content:attr(data-language);position:absolute;right:18px;top:9px;font:10px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--study-muted);pointer-events:none}
 .palm-diagram{background:var(--study-paper);border-radius:14px;padding:24px 12px}
 .bn-block-content[data-content-type=diagram] .bn-preview-container{border:0;background:transparent}
 /* BlockNote defaults code blocks to a dark highlighter even in light documents. */
 .bn-editor .bn-block-content .shiki{color:var(--shiki-light)}
 :root.dark .bn-editor .bn-block-content .shiki{color:var(--shiki-dark)}
+
+/* WebKit sizes its native caret from the editable line box. Keep that box
+   aligned with the text; use block padding for breathing room instead. */
+.bn-editor .bn-block-outer{line-height:normal}
+.bn-editor .bn-inline-content{line-height:normal}
+.bn-editor .bn-block-content:not([data-content-type=codeBlock]):not([data-content-type=heading]){padding-block:5px}
+.bn-editor .bn-source-block-popup pre,.bn-editor .bn-source-block-popup code{font:13px/normal ui-monospace,SFMono-Regular,Menlo,monospace}

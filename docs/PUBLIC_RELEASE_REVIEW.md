@@ -1,5 +1,7 @@
 # Public release review — 1.0.0
 
+> Historical review: this installer is now in draft after a reported macOS security alert. See [current release status](RELEASING.md).
+
 Reviewed September 7, 2026 on an Apple silicon Mac.
 
 ## Verified
@@ -15,7 +17,7 @@ Reviewed September 7, 2026 on an Apple silicon Mac.
 
 ## Limits
 
-This build is Apple silicon only, requires macOS 15+, and is not Developer ID signed or notarized. First launch can require Apple's per-app approval in Privacy & Security. The local launch check does not reproduce Gatekeeper quarantine on another Mac.
+This build is Apple silicon only, requires macOS 15+, and is not Developer ID signed or notarized. The local launch check does not reproduce Gatekeeper quarantine on another Mac.
 
 Live model calls were not repeated for this packaging review. Provider availability, free-model limits, and output quality can change. The automated public-file audit checks specific patterns; it is not a guarantee that arbitrary imported repository content is safe to send to a provider.
 

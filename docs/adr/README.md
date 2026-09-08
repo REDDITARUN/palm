@@ -10,3 +10,5 @@ Status: accepted, recorded 2026-09-07. These records describe the implemented ar
 - [0006 — Source release, Mac disk image, and static GitHub Pages site](0006-public-release.md)
 
 - [0007 — Palm name and shared learning surfaces](0007-palm-brand-and-reading-surfaces.md)
+
+- [0008 — Pause installers and require verified distribution](0008-distribution-security-gate.md)

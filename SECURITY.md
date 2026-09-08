@@ -6,4 +6,6 @@ Repository imports exclude common secret filenames and build folders, but this i
 
 For a vulnerability, use [GitHub private vulnerability reporting](https://github.com/REDDITARUN/palm/security/advisories/new) if enabled. Do not put exploit credentials, personal databases, or private source code in a public issue. Report the affected version, impact, and a minimal reproduction with synthetic data.
 
-The initial downloadable macOS build is ad-hoc signed, not Developer ID signed or notarized. Download only from this repository's releases and compare its SHA-256 checksum. Instructions use macOS's per-app approval flow; they never disable Gatekeeper globally.
+Public installers are paused following a reported “Palm will damage your computer” alert. Do not bypass that warning. Local checks found an ad-hoc signature and missing notarization ticket, but have not reproduced the reported malware detection; its cause is unresolved. Checksums and signature integrity alone do not establish that an app is safe.
+
+When reporting an installation alert, include its exact wording or screenshot, macOS version, Palm version, and download URL. Keep private data and credentials out of reports. Public installers must pass the checks in [the release guide](docs/RELEASING.md) before downloads resume.

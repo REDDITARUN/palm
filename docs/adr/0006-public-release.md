@@ -1,7 +1,7 @@
 # ADR 0006: Source release, Mac disk image, and static GitHub Pages site
 
 Date: 2026-09-07
-Status: Accepted
+Status: Amended by ADR 0008
 
 ## Context
 

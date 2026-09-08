@@ -52,6 +52,7 @@ struct LessonView: View {
                 }
             }
             .onChange(of: pageID) { store.selectedExcerpt = "" }
+            .onChange(of: store.lessonTutorRequest) { inspectorTab = "Tutor"; showInspector = true }
             .onChange(of: session.stage) { if session.stage == .recap || session.stage == .complete { showInspector = false } }
             .onReceive(timer) { _ in if phase == .active && session.stage != .complete { store.logActivity(sessionID, seconds: 15) } }
         }
@@ -71,7 +72,7 @@ struct LessonView: View {
         if let prediction = session.content.prediction, session.predictionRevealed != true {
             PageHeading(eyebrow: "Before we explore", title: "What do you think?", subtitle: "Make a prediction. This is ungraded—being unsure is part of learning.")
             MarkdownReading(text: prediction.prompt, fontSize: 17)
-            if let code = prediction.code, !code.isEmpty { CodeReadingView(code: code, language: prediction.language) { store.selectedExcerpt = $0 }.frame(height: min(CGFloat(code.components(separatedBy: "\n").count * 22 + 60), 310)) }
+            if let code = prediction.code, !code.isEmpty { CodeReadingView(code: code, language: prediction.language, onAsk: { store.askAboutCode($0) }) { store.selectedExcerpt = $0 }.frame(height: min(CGFloat(code.components(separatedBy: "\n").count * 22 + 60), 310)) }
             ChoiceGrid(options: prediction.options) { ForEach(prediction.options, id: \.self) { option in
                 ChoiceOption(title: option, selected: session.predictionAnswer == option, badge: String(UnicodeScalar(65 + (prediction.options.firstIndex(of: option) ?? 0))!)) { store.updateSession(session.id) { $0.predictionAnswer = option } }
             }
@@ -151,7 +152,7 @@ struct QuestionView: View {
             HStack { Eyebrow(title: "Question \(session.questionIndex + 1) of \(session.content.questions.count)"); Spacer(); Button { store.previousQuestion(session.id) } label: { Image(systemName: "chevron.left") }.buttonStyle(IconButton()).accessibilityLabel("Previous question").disabled(session.questionIndex == 0 || store.isEvaluating) }
             ProgressView(value: Double(session.questionIndex), total: Double(session.content.questions.count)).tint(Palette.accent)
             MarkdownReading(text: LearningEngine.removingRepeatedCode(from: question.prompt, code: question.code), fontSize: 17)
-            if !question.code.isEmpty { CodeReadingView(code: question.code, language: question.language) { store.selectedExcerpt = $0 }.frame(height: min(CGFloat(question.code.components(separatedBy: "\n").count * 22 + 60), 310)) }
+            if !question.code.isEmpty { CodeReadingView(code: question.code, language: question.language, onAsk: { store.askAboutCode($0) }) { store.selectedExcerpt = $0 }.frame(height: min(CGFloat(question.code.components(separatedBy: "\n").count * 22 + 60), 310)) }
             if question.kind == .diagramChoice {
                 ForEach(question.diagrams ?? []) { diagram in
                     VStack(alignment: .leading, spacing: 8) {
@@ -236,28 +237,46 @@ struct CodeReadingView: View {
     @Environment(\.colorScheme) private var colorScheme
     var code: String
     var language: String? = nil
+    var onAsk: ((String) -> Void)? = nil
     var onSelection: (String) -> Void
     @State private var state = SourceEditorState()
     @State private var syntaxChoices: [SyntaxChoice] = []
-    @State private var hovered = false
+    @State private var languageOverride = ""
+    @State private var selectionController = SyntaxSelectionController()
+    private var languageHint: String? { languageOverride.isEmpty ? language : languageOverride }
+    private var resolvedLanguage: CodeLanguage? { SyntaxSelection.language(for: languageHint) }
+    private var selectedText: String {
+        guard let range = state.cursorPositions?.first?.range, range.length > 0, SyntaxSelection.valid(range, in: code) else { return "" }
+        return (code as NSString).substring(with: range)
+    }
+    private func updateSyntax() {
+        guard let range = state.cursorPositions?.first?.range else { syntaxChoices = []; return }
+        syntaxChoices = SyntaxSelection.ancestors(code: code, language: languageHint, range: range)
+    }
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 8) {
-                Text("Select code to ask").font(.system(size: 11)).foregroundStyle(Palette.studyMuted).opacity(hovered ? 1 : 0)
-                Spacer()
-                if !syntaxChoices.isEmpty { ActionPopover(title: "Code structure", icon: "scope", textLabel: true, actions: syntaxChoices.map { item in WorkspaceAction(title: item.title, icon: "curlybraces") { onSelection(item.text) } }) }
-                Text(language ?? "Code").font(.system(size: 11, design: .monospaced)).foregroundStyle(Palette.studyMuted)
+                ActionPopover(title: "Select syntax", icon: "scope", textLabel: true, actions: syntaxChoices.map { item in
+                    WorkspaceAction(title: item.title, icon: "curlybraces", detail: item.detail, identity: item.id) {
+                        if selectionController.select(item, in: code) { onSelection(item.text) }
+                    }
+                }).disabled(syntaxChoices.isEmpty).help(resolvedLanguage == nil ? "Choose the code language first" : "Click inside the code, then choose an expression or enclosing block")
+                if let onAsk { Button { onAsk(selectedText) } label: { Label("Ask", systemImage: "bubble.left") }.buttonStyle(TextActionStyle()).disabled(selectedText.isEmpty).help("Ask the tutor about the selected code").accessibilityLabel("Ask about selected code") }
+                Spacer(minLength: 0)
+                ActionPopover(title: languageHint ?? "Language", icon: "chevron.down", textLabel: true, searchable: true, actions: ["python", "javascript", "typescript", "swift", "java", "rust", "go", "c", "cpp", "bash"].map { name in
+                    WorkspaceAction(title: name, selected: resolvedLanguage?.id.rawValue.lowercased() == name) { languageOverride = name }
+                }).accessibilityLabel("Code language")
                 CopyCodeButton { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(code, forType: .string) }
             }.padding(.horizontal, 16).padding(.top, 4)
-            SourceEditor(.constant(code), language: CodeLanguage.allLanguages.first { $0.id.rawValue.lowercased() == language?.lowercased() } ?? .default, configuration: .init(appearance: .init(theme: Self.theme(dark: colorScheme == .dark), font: .monospacedSystemFont(ofSize: 14, weight: .regular), wrapLines: false), behavior: .init(isEditable: false), peripherals: .init(showGutter: false, showMinimap: false)), state: $state)
+            SourceEditor(.constant(code), language: resolvedLanguage ?? .default, configuration: .init(appearance: .init(theme: Self.theme(dark: colorScheme == .dark), font: .monospacedSystemFont(ofSize: 14, weight: .regular), wrapLines: false), behavior: .init(isEditable: false), peripherals: .init(showGutter: false, showMinimap: false)), state: $state, coordinators: [selectionController])
                 .onChange(of: state.cursorPositions) {
-                    if let range = state.cursorPositions?.first?.range, NSMaxRange(range) <= (code as NSString).length {
-                        if range.length > 0 { onSelection((code as NSString).substring(with: range)) }
-                        syntaxChoices = SyntaxSelection.ancestors(code: code, language: language, range: range)
-                    }
+                    updateSyntax()
+                    if !selectedText.isEmpty { onSelection(selectedText) }
                 }
+                .onChange(of: languageOverride) { updateSyntax() }
+                .onChange(of: code) { syntaxChoices = []; state = SourceEditorState(); languageOverride = "" }
                 .padding(.horizontal, 22).padding(.bottom, 18)
-        }.background(Palette.studyFill).clipShape(.rect(cornerRadius: 14)).onHover { hovered = $0 }
+        }.background(Palette.studyFill).clipShape(.rect(cornerRadius: 14))
     }
     static func theme(dark: Bool) -> EditorTheme {
         // CodeEdit's minimap reads brightnessComponent, which dynamic/catalog NSColors do not expose.
@@ -267,7 +286,7 @@ struct CodeReadingView: View {
         let blue = dark ? NSColor(deviceRed: 0.61, green: 0.72, blue: 0.95, alpha: 1) : NSColor(deviceRed: 0.29, green: 0.39, blue: 0.67, alpha: 1)
         let orange = dark ? NSColor(deviceRed: 0.94, green: 0.68, blue: 0.43, alpha: 1) : NSColor(deviceRed: 0.70, green: 0.34, blue: 0.15, alpha: 1)
         let comment = dark ? NSColor(deviceRed: 0.61, green: 0.71, blue: 0.58, alpha: 1) : NSColor(deviceRed: 0.43, green: 0.50, blue: 0.38, alpha: 1)
-        return .init(text: .init(color: text), insertionPoint: rgb(.controlAccentColor), invisibles: .init(color: rgb(.tertiaryLabelColor)), background: background, lineHighlight: rgb(.clear), selection: rgb(.selectedTextBackgroundColor), keywords: .init(color: blue), commands: .init(color: blue), types: .init(color: blue), attributes: .init(color: blue), variables: .init(color: text), values: .init(color: blue), numbers: .init(color: orange), strings: .init(color: text), characters: .init(color: text), comments: .init(color: comment))
+        return .init(text: .init(color: text), insertionPoint: rgb(.controlAccentColor), invisibles: .init(color: rgb(.tertiaryLabelColor)), background: background, lineHighlight: rgb(.clear), selection: dark ? NSColor(deviceRed: 0.25, green: 0.37, blue: 0.26, alpha: 1) : NSColor(deviceRed: 0.81, green: 0.88, blue: 0.73, alpha: 1), keywords: .init(color: blue), commands: .init(color: blue), types: .init(color: blue), attributes: .init(color: blue), variables: .init(color: text), values: .init(color: blue), numbers: .init(color: orange), strings: .init(color: text), characters: .init(color: text), comments: .init(color: comment))
     }
 }
 
