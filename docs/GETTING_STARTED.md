@@ -1,10 +1,16 @@
 # Your first session
 
-**Installer downloads are paused** while a reported macOS “will damage your computer” alert is investigated. Do not bypass that warning. The learning guide below remains available for local source builds.
-
 ## 1. Install Palm
 
-Public installer downloads are paused while a reported macOS security alert is investigated. Do not bypass a ‘will damage your computer’ warning. You can review and build the source using [the development guide](DEVELOPMENT.md); a local build does not resolve the reported alert.
+Download the Apple silicon disk image from [Releases](https://github.com/REDDITARUN/palm/releases/latest), open it, and drag Palm into Applications. Requires macOS 15+. This community build is ad-hoc signed and not Apple-notarized.
+
+If macOS says **Apple could not verify Palm**, and you trust the copy downloaded from this repository:
+
+1. Attempt to open Palm once.
+2. Open **System Settings → Privacy & Security**.
+3. Find Palm’s warning, click **Open Anyway**, then confirm **Open**. Authenticate to macOS if asked.
+
+This approves this app specifically; do not disable Gatekeeper globally. These instructions do not apply to a warning that the app **will damage your computer** or contains malware. [Apple’s guidance](https://support.apple.com/en-us/102445).
 
 ## 2. Connect a model
 

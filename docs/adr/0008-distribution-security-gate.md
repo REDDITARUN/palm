@@ -1,7 +1,7 @@
-# ADR 0008: Pause installers and require verified distribution
+# ADR 0008: Distribution checks and macOS warning handling
 
 Date: 2026-09-07
-Status: Accepted; amends ADR 0006
+Status: Amended after the reporter clarified the warning; amends ADR 0006
 
 ## Context
 
@@ -16,3 +16,9 @@ Keep existing release assets in GitHub drafts and point the website at an explic
 Restoring downloads requires investigating the original alert and testing the final downloaded artifact on another Mac with normal protections enabled. Apple notarization cannot be completed with the available free-account credentials. Passing integrity checks or rebuilding does not establish that the original alert was a false positive. No Gatekeeper settings are changed.
 
 See [release procedure](../RELEASING.md) and [Apple’s warning definitions](https://support.apple.com/en-us/102445).
+
+## Correction after clarification
+
+The reporter clarified that Palm installs successfully and macOS says Apple could not verify Palm is free of malware when opening it. This is the standard verification warning for this unnotarized build; the earlier wording was incorrect. No actual malware-detection report remains established by this exchange. The downloaded disk image mounts and copies successfully and the copied app passes signature-integrity checks. Gatekeeper still rejects the ad-hoc, unnotarized app.
+
+Restore the previously published community releases unchanged, explicitly label them unnotarized, and document Apple's per-app approval flow only for a trusted copy with the verification warning. This does not claim Apple verification or guarantee safety. Retain the default verified-distribution packaging gate for future releases and the local-only flag for development images. Never automate changes to Gatekeeper settings. The previous pause requirements above record the response to the original, subsequently corrected report.

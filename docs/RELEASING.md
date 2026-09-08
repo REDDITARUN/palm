@@ -1,6 +1,6 @@
 # Release checklist
 
-Public installers are currently paused after a reported “Palm will damage your computer” warning. Its cause remains unresolved. Do not publish another installer merely because it builds or has a valid ad-hoc signature. A free Apple developer account cannot create the required Developer ID Application distribution identity.
+The reporter clarified that the alert is “Apple could not verify Palm,” shown after installation. The precautionary pause has ended; existing 1.0.0 and 1.0.1 community releases are restored unchanged and explicitly labeled ad-hoc signed, not notarized. They require user approval for a trusted copy through Apple's per-app flow. This is not a warning-free distribution fix. A free Apple developer account cannot create the Developer ID Application identity needed for notarization.
 
 ## Source and local builds
 
@@ -8,22 +8,22 @@ Public installers are currently paused after a reported “Palm will damage your
 2. Test affected flows with a disposable library. Run `python3 Scripts/audit-public.py`.
 3. Build using `bash Scripts/build-native.sh --release`. This produces an **ad-hoc local build**, not an Apple-verified public installer.
 4. If needed, `bash Scripts/package-release.sh --skip-build --local-only` creates an explicitly named LOCAL-TEST disk image. Do not upload it as a public release.
-5. Commit and push reviewed source only when authorized. Existing release assets remain in drafts for investigation.
+5. Commit and push reviewed source only when authorized. Do not replace the restored community assets silently.
 
-## Restoring public installers
+## Future notarized installers
 
-1. Investigate the reported alert on the affected Mac, including its exact wording, macOS version, app version, and download source. Do not disable or bypass OS protections.
+1. Confirm the exact warning before interpreting a report. The verification warning and a malware-detection alert require different responses. Do not automate security-setting changes.
 2. Obtain a Developer ID Application identity through the Apple Developer Program. Keep private keys and notarization credentials outside Git. Apple Development is not a substitute.
 3. Update `VERSION`, build the final app, then sign nested executable code from the inside out and the outer app with Developer ID, a secure timestamp, and hardened runtime. Apply only entitlements the app actually needs. Rebuilding with `build-native.sh` overwrites this signature with an ad-hoc signature, so sign after building.
 4. Submit a ZIP of the signed app using `xcrun notarytool submit` with an authenticated Keychain profile and `--wait`. Inspect the result and notarization log; only an Accepted result can proceed. Staple the ticket to the app using `xcrun stapler staple`.
 5. Run `bash Scripts/verify-distribution.sh dist/Palm.app`. It checks signature integrity, Developer ID, hardened runtime, a stapled ticket, and local Gatekeeper assessment. Then run `bash Scripts/package-release.sh --skip-build`; default packaging fails closed if any check fails.
-6. Mount the resulting image read-only. Check its version, architecture, resources, Applications shortcut, and payload privacy. Verify the final downloaded image and application on a separate Mac with normal macOS protections enabled. Local acceptance alone does not resolve the original warning.
-7. Once the reported alert is resolved and validation is documented, publish a new version and checksums using `gh release create`. Never silently replace old assets. Restore website download links and remove the pause notice only at that point.
+6. Mount the resulting image read-only. Check its version, architecture, resources, Applications shortcut, and payload privacy. Verify the final downloaded image and application on a separate Mac with normal macOS protections enabled. Record the actual first-open behavior; local integrity checks alone do not verify a downloaded app’s first launch.
+7. Once notarization and first-open validation are documented, publish a new version and checksums using `gh release create`. Never silently replace old assets. Update website filenames and signing status to match the artifact.
 
 Apple references: [macOS app security warnings](https://support.apple.com/en-us/102445), [notarizing macOS software](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution).
 
 ## Website
 
-Source lives in `site/`; GitHub Pages serves `gh-pages` at `/`. Publish with `bash Scripts/publish-site.sh`. It performs a normal push from a temporary worktree. Keep download status and filenames accurate; the current site deliberately links to the pause notice.
+Source lives in `site/`; GitHub Pages serves `gh-pages` at `/`. Publish with `bash Scripts/publish-site.sh`. It performs a normal push from a temporary worktree. Keep download status and filenames accurate; the current site links to the existing unnotarized 1.0.1 community release.
 
 The installer layout lives in `Assets/InstallerLayout.store`, generated by `Scripts/make-installer-layout.py`. Binaries, credentials, test libraries, and signing material never belong in Git.

@@ -1,7 +1,7 @@
 # Selection, notebook caret, and distribution review
 
 Date: 2026-09-07
-Status: Source fixes complete; public installation alert unresolved
+Status: Source fixes complete; community downloads restored with unnotarized status
 
 ## Code selection
 
@@ -23,6 +23,8 @@ Reference: [WebKit caret and line-height issue](https://bugs.webkit.org/show_bug
 - Public packaging rejects the available ad-hoc build because Developer ID is missing.
 - No live model calls were required. No personal library was used for fixture testing.
 
-## Distribution remains blocked
+## Corrected distribution report
 
-The user reports “Palm will damage your computer.” Local Apple checks found ad-hoc signing and a missing notarization ticket but did not reproduce a malware-specific finding. The warning is not established to be a false positive. Both old installers remain in GitHub drafts; the live website states that downloads are paused. A free Apple developer account cannot provide Developer ID distribution signing. See [ADR 0008](adr/0008-distribution-security-gate.md) and [release steps](RELEASING.md).
+The reporter clarified that installation succeeds and opening Palm shows “Apple could not verify Palm,” rather than the previously reported malware-detection wording. The downloaded image mounts, copies successfully, and the copied app passes signature-integrity checks. Apple checks still reject the ad-hoc signature and missing notarization ticket, as expected for this build.
+
+Existing community releases are restored unchanged with clear unnotarized labeling and Apple's per-app first-open guidance for a trusted copy. This does not establish that software is safe or remove the verification warning. Warning-free distribution still needs Developer ID signing and notarization, unavailable with the current free account. See [ADR 0008](adr/0008-distribution-security-gate.md) and [release steps](RELEASING.md).

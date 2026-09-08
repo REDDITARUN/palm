@@ -6,7 +6,7 @@
 
 - Make syntax selection highlight the actual expression or enclosing code block; add language aliases and a direct Ask action.
 - Align notebook editable line boxes with text to reduce oversized WebKit cursors.
-- Pause public installers while investigating a reported macOS security alert; require verified distribution checks before public packaging.
+- Add verified-distribution packaging checks. Restore existing community installers after clarification that the reported alert is the standard unnotarized-app verification warning; document first-open steps.
 
 ## 1.0.1 — 2026-09-07
 

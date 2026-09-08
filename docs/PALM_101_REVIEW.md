@@ -1,6 +1,6 @@
 # Palm 1.0.1 review
 
-> Historical review: this installer is now in draft after a reported macOS security alert. See [current release status](RELEASING.md).
+> Historical review: the temporary download pause ended after the reporter clarified the standard macOS verification warning. This installer remains unnotarized. See [current release status](RELEASING.md).
 
 Reviewed September 7, 2026.
 
