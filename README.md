@@ -19,13 +19,9 @@ Pick a technical topic or a repository. Palm builds a learning path, explains id
 
 ## Install
 
-Requires **Apple silicon (M1 or later), macOS 15 or later**. Intel and iOS builds are not included.
+**Installer downloads are temporarily paused** while a reported macOS “will damage your computer” alert is investigated. Do not bypass that warning. Previous installer releases are retained privately as drafts; source remains available for review.
 
-1. Download `Palm-1.0.1-macOS-arm64.dmg` from [Releases](https://github.com/REDDITARUN/palm/releases/latest).
-2. Open the disk image and drag **Palm** into **Applications**.
-3. Open Palm, add your own API key, and choose a topic.
-
-The community build is **ad-hoc signed and not notarized**. If macOS blocks the first launch, attempt to open it, then use **System Settings → Privacy & Security → Open Anyway** for the copy you downloaded from this repository. See [Apple's per-app approval instructions](https://support.apple.com/en-us/102445). Release assets include SHA-256 checksums. No installer script disables Gatekeeper.
+The app targets Apple silicon (M1 or later) and macOS 15+. Earlier builds were ad-hoc signed and not notarized. Local Apple checks confirm those distribution failures, but have not reproduced the reported malware alert. See [Apple’s explanation of the different warnings](https://support.apple.com/en-us/102445). Installer availability will be updated on the [website](https://redditarun.github.io/palm/#download-status).
 
 ## Start with a free model
 

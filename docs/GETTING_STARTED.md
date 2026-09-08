@@ -1,5 +1,7 @@
 # Your first session
 
+**Installer downloads are paused** while a reported macOS “will damage your computer” alert is investigated. Do not bypass that warning. The installation steps below describe the previous distribution and are on hold.
+
 ## 1. Install Palm
 
 Download the Apple silicon `.dmg` from [Releases](https://github.com/REDDITARUN/palm/releases/latest), open it, and drag Palm into Applications. Requires macOS 15 or later. This community release is not notarized; if blocked, use Apple's per-app **Open Anyway** flow in Privacy & Security after attempting to open the app. [Apple's instructions](https://support.apple.com/en-us/102445).
