@@ -1,0 +1,15 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>Palm</title>
+        <item>
+            <title>1.0.3</title>
+            <pubDate>Sat, 12 Sep 2026 15:50:50 -0700</pubDate>
+            <sparkle:version>1.0.3</sparkle:version>
+            <sparkle:shortVersionString>1.0.3</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://github.com/REDDITARUN/palm/releases/download/v1.0.3/Palm-1.0.3-macOS-arm64.dmg" length="43785972" type="application/octet-stream" sparkle:edSignature="iqEGb/oxXfvkcDPfwhQmNer64P8/hwQAXpVbzbnW+5wJOHBEaFgh/VaXaDLuJ7Y0H2uDcxivnYhqp35Sooo2Bw=="/>
+        </item>
+    </channel>
+</rss>
