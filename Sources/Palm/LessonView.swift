@@ -23,6 +23,7 @@ struct LessonView: View {
                     Button { store.activeSessionID = nil; store.openCourse(session.courseID) } label: { Image(systemName: "arrow.left") }.buttonStyle(IconButton()).help("Save and return to course").accessibilityLabel("Return to course")
                     VStack(alignment: .leading, spacing: 4) { Text(session.content.title).font(.system(size: 13, weight: .semibold)); Text(session.isCheckpoint == true ? "Application checkpoint · feedback at the end" : (session.isReview ? "Spaced review" : "Lesson")).font(.system(size: 10)).foregroundStyle(.secondary) }
                     Spacer()
+                    if let root = store.snapshotPath(for: session) { BrowseSourceButton(root: root) }
                     HStack(spacing: 7) { stageChip("Read", active: session.stage == .reading); Image(systemName: "chevron.right"); stageChip("Practice", active: session.stage == .practice); Image(systemName: "chevron.right"); stageChip("Reflect", active: session.stage == .recap || session.stage == .complete) }.font(.system(size: 9)).foregroundStyle(.tertiary)
                     Button { withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) { showInspector.toggle() } } label: { Image(systemName: "sidebar.right") }.buttonStyle(IconButton()).accessibilityLabel("Toggle tutor and sources").help(showInspector ? "Focus on the lesson" : "Show tutor and sources")
                 }.padding(.horizontal, 28).padding(.vertical, 16)
@@ -51,6 +52,7 @@ struct LessonView: View {
                 }
                 }
             }
+            .environment(\.sourceSnapshot, store.snapshotPath(for: session))
             .onChange(of: pageID) { store.selectedExcerpt = "" }
             .onChange(of: store.lessonTutorRequest) { inspectorTab = "Tutor"; showInspector = true }
             .onChange(of: session.stage) { if session.stage == .recap || session.stage == .complete { showInspector = false } }
@@ -177,7 +179,7 @@ struct QuestionView: View {
                         Text(attempt.answer).font(.system(size: 14)).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading).padding(12).background(Palette.surface, in: .rect(cornerRadius: 8))
                     } else {
                         TextEditor(text: draft).proseNavigation().scrollContentBackground(.hidden).font(.system(size: 14)).frame(height: question.kind.isLongAnswer ? 96 : 48).accessibilityLabel(question.kind.isLongAnswer ? "Your reasoning" : "Your answer").fieldStyle().focused($answerFocused).disabled(store.busy != nil).accessibilityIdentifier("question-answer")
-                        Text("Equivalent wording is accepted").font(.system(size: 12)).foregroundStyle(.secondary)
+                        HStack { Text("Equivalent wording is accepted").font(.system(size: 12)).foregroundStyle(.secondary); Spacer(); VoiceInputButton(text: draft, shortcutEnabled: answerFocused).disabled(store.busy != nil) }
                     }
                 }
             }
@@ -254,6 +256,8 @@ struct CodeReadingView: View {
     var code: String
     var language: String? = nil
     var onAsk: ((String) -> Void)? = nil
+    var showsLineNumbers = false
+    var focusLine: Int? = nil
     var onSelection: (String) -> Void
     @State private var state = SourceEditorState()
     @State private var syntaxChoices: [SyntaxChoice] = []
@@ -306,12 +310,23 @@ struct CodeReadingView: View {
                 }).accessibilityLabel("Code language")
                 CopyCodeButton { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(code, forType: .string) }
             }.padding(.horizontal, 16).padding(.top, 4)
-            SourceEditor(.constant(code), language: resolvedLanguage ?? .default, configuration: .init(appearance: .init(theme: Self.theme(dark: colorScheme == .dark), font: .monospacedSystemFont(ofSize: 14, weight: .regular), wrapLines: false), behavior: .init(isEditable: false), peripherals: .init(showGutter: false, showMinimap: false)), state: $state, coordinators: [selectionController])
+            SourceEditor(.constant(code), language: resolvedLanguage ?? .default, configuration: .init(appearance: .init(theme: Self.theme(dark: colorScheme == .dark), font: .monospacedSystemFont(ofSize: 14, weight: .regular), wrapLines: false), behavior: .init(isEditable: false), peripherals: .init(showGutter: showsLineNumbers, showMinimap: false)), state: $state, coordinators: [selectionController])
                 .onChange(of: state.cursorPositions) {
                     updateSyntax()
                     if !selectedText.isEmpty { onSelection(selectedText) }
                 }
                 .onAppear { selectionController.syntaxEnabled = resolvedLanguage != nil }
+                .task(id: code) {
+                    guard let focusLine, focusLine > 0, !code.isEmpty else { return }
+                    let lines = code.components(separatedBy: "\n")
+                    guard focusLine <= lines.count else { return }
+                    let offset = lines.prefix(focusLine - 1).reduce(0) { $0 + $1.utf16.count + 1 }
+                    let choice = SyntaxChoice(title: "Line \(focusLine)", text: lines[focusLine - 1], range: NSRange(location: offset, length: lines[focusLine - 1].utf16.count))
+                    for _ in 0..<10 {
+                        if selectionController.select(choice, in: code) { break }
+                        do { try await Task.sleep(for: .milliseconds(50)) } catch { break }
+                    }
+                }
                 .onChange(of: resolvedLanguage?.id) {
                     selectionController.syntaxEnabled = resolvedLanguage != nil
                     syntaxChoices = []; updateSyntax()
@@ -359,23 +374,18 @@ struct SourceDetailView: View {
     @Environment(\.dismiss) private var dismiss
     var source: LearningSource
     var session: StudySession
-    @State private var code = ""
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack { Text(source.title).font(.title2); Spacer(); Button("Done") { dismiss() } }
-            Text(source.location).font(.system(size: 12, design: .monospaced)).foregroundStyle(.secondary)
-            if source.location.hasPrefix("https://"), let url = URL(string: source.location) { MarkdownReading(text: source.excerpt); Link("Open documentation ↗", destination: url) }
-            else { CodeReadingView(code: code.isEmpty ? source.excerpt : code) { store.selectedExcerpt = $0 }.frame(minHeight: 330) }
-            Button("Ask about selection") { if store.selectedExcerpt.isEmpty { store.selectedExcerpt = source.excerpt }; dismiss() }.buttonStyle(PrimaryButton())
-        }.padding(26).frame(width: 740, height: 530)
-        .task {
-            guard let course = store.data.courses.first(where: { $0.id == session.courseID }), let repo = store.data.repositories.first(where: { $0.id == course.repositoryID }) else { return }
-            // Read immutable snapshot only; disallow traversal outside it.
-            guard let snapshotPath = session.snapshotPath ?? (session.snapshotID == repo.snapshotID ? repo.snapshotPath : nil) else { return }
-            let root = URL(fileURLWithPath: snapshotPath).resolvingSymlinksInPath().standardizedFileURL
-            let url = root.appendingPathComponent(source.location).standardizedFileURL
-            guard url.path.hasPrefix(root.path + "/") else { return }
-            code = (try? String(contentsOf: url, encoding: .utf8)) ?? source.excerpt
+        if !source.location.hasPrefix("https://"), let root = store.snapshotPath(for: session) {
+            SourceBrowser(root: root, initial: try? SourceReference(source.location))
+        } else {
+            VStack(alignment: .leading, spacing: 18) {
+                HStack { Text(source.title).font(.title2); Spacer(); Button("Done") { dismiss() }.buttonStyle(QuietButton()) }
+                Text(source.location).font(.system(size: 12, design: .monospaced)).foregroundStyle(.secondary)
+                ScrollView { MarkdownReading(text: source.excerpt) }
+                if source.location.hasPrefix("https://"), let url = URL(string: source.location) { Link("Open documentation ↗", destination: url) }
+                else { Text("The source snapshot is unavailable; this is the saved excerpt.").font(.caption).foregroundStyle(.secondary) }
+                Button("Ask about this excerpt") { store.askAboutCode(source.location + "\n" + source.excerpt); dismiss() }.buttonStyle(QuietButton())
+            }.padding(26).frame(width: 740, height: 530)
         }
     }
 }

@@ -125,7 +125,7 @@ struct NewCourseView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
-                HStack { Eyebrow(title: takingDiagnostic ? "Starting check" : "New course"); Spacer(); Button { dismiss() } label: { Image(systemName: "xmark") }.buttonStyle(TextActionStyle()).disabled(store.busy != nil) }
+                HStack { Eyebrow(title: takingDiagnostic ? "Starting check" : "New course"); Spacer(); Button { dismiss() } label: { Image(systemName: "xmark") }.buttonStyle(TextActionStyle()).help(store.busy == nil ? "Close" : "Keep working in the background") }
                 if takingDiagnostic {
                     Text(topic).font(.system(size: 15, weight: .medium)).foregroundStyle(.secondary).lineLimit(2).help(topic)
                 } else {
@@ -157,7 +157,7 @@ struct NewCourseView: View {
                 }
                 }
                 if let error = store.error { Text(error).font(.system(size: 12)).foregroundStyle(.red).textSelection(.enabled).padding(12).frame(maxWidth: .infinity, alignment: .leading).background(Color.red.opacity(0.07), in: .rect(cornerRadius: 10)) }
-                if let busy = store.busy { HStack { ProgressView().controlSize(.small); Text(busy).font(.system(size: 12)); Spacer(); Button("Cancel") { store.cancelWork() } }.padding(14).background(Palette.soft, in: .rect(cornerRadius: 10)) }
+                if store.busy != nil { WorkStatusView() }
             }.padding(32)
         }.frame(width: 700, height: 620)
         .onAppear { repositoryID = store.newCourseRepositoryID; store.newCourseRepositoryID = nil; topic = store.newCourseTopic; store.newCourseTopic = "" }

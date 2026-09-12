@@ -39,3 +39,15 @@ Before moving computers, use **Settings → Data → Back up library** and keep 
 ## Updating from 1.0.0
 
 Quit Plam, install Palm, then remove the old Plam.app from Applications to avoid opening the older copy. Your existing library and Keychain credentials are reused. Keep the Application Support folder; removing the old app does not require deleting your library.
+
+## Source code and voice answers
+
+In repository lessons, click a file path or choose **Browse code**. Search the saved snapshot, open a file, and click a code element to ask the tutor about it. Source links can point to individual lines. The original repository is never modified.
+
+For written answers and tutor messages, click the microphone, or press **⌘⇧D** while the input is focused. The first use downloads Parakeet (about 471 MB of cached model files in this build) and requests microphone access. Stop recording to insert an editable transcript. Palm transcribes locally and deletes the recording afterward; it does not send the answer until you submit it.
+
+## Updating without losing progress
+
+Choose **Palm → Check for Updates…** or **Settings → Updates**. The update comes from this repository and its signature is verified before installation. Automatic checks are optional. Your library and model connections stay in their existing locations; replacing the app does not reset them. Palm also takes a database backup in `UpgradeBackups` before opening an existing library with a new app version.
+
+If you have version 1.0.2 or earlier, download the current DMG and replace the app once to get the updater. Keep your Application Support folder. Community builds are still unnotarized; the installation guidance above continues to apply.

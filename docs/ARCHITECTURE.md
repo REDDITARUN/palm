@@ -34,3 +34,7 @@ Local graph links come from note links, course ownership, and saved learning mem
 See [ADRs](adr/README.md) for tradeoffs, [data/privacy](DATA_AND_PRIVACY.md) for persistence, and [development](DEVELOPMENT.md) for builds and tests.
 
 Provider forms save independent named connections. ChatGPT subscription requests use isolated OpenCode OAuth state; API-key connections retain separate credentials and billing. See [ADR 0009](adr/0009-saved-connections-and-chatgpt.md).
+
+## Long work and application updates
+
+See [ADR 0010](adr/0010-long-work-source-voice-updates.md). Generation uses streaming completions or an uncapped OpenCode process, with extended network-silence limits. Source paths open a bounded, read-only snapshot browser. Parakeet dictation uses FluidAudio and AVFoundation; its cache is independent of study data. Sparkle verifies and installs signed releases. Version changes create a SQLite-consistent recovery copy before migration; application replacement keeps the existing library directory and Keychain identity.

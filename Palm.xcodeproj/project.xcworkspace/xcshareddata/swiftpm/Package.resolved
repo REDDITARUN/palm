@@ -1,5 +1,5 @@
 {
-  "originHash" : "4c5d25e2139a866e9d9173aa2bcaae3ecbee1cf9aef930ac2872f27b5411d391",
+  "originHash" : "a8314ddfe97a33d3cd3f023e3fb77ca048ee0466fc31ddd25ae49618a47a4bec",
   "pins" : [
     {
       "identity" : "codeeditlanguages",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "d7ac3f11f22ec2e820187acce8f3a3fb7aa8ddec",
         "version" : "0.12.1"
+      }
+    },
+    {
+      "identity" : "fluidaudio",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FluidInference/FluidAudio.git",
+      "state" : {
+        "revision" : "41540ea237350afe5117a082b5c28eda642d0612",
+        "version" : "0.15.7"
       }
     },
     {
@@ -62,6 +71,15 @@
       "state" : {
         "revision" : "4de8be41dba304192e87dc0a11e0aa39e72aa2e8",
         "version" : "2.1.1"
+      }
+    },
+    {
+      "identity" : "sparkle",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sparkle-project/Sparkle.git",
+      "state" : {
+        "revision" : "ac2def288cbff5cfc7df3ffef6abdf45b72bcb0a",
+        "version" : "2.9.6"
       }
     },
     {

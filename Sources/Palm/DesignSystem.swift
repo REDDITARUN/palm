@@ -96,6 +96,8 @@ struct EmptyState: View {
 extension EnvironmentValues { @Entry var studyReadingScale: CGFloat = 1 }
 
 struct MarkdownReading: View {
+    @Environment(\.sourceSnapshot) private var snapshot
+    @State private var source: SourceReference?
     @Environment(\.studyReadingScale) private var readingScale
     var text: String
     var fontSize: CGFloat = 15
@@ -106,12 +108,18 @@ struct MarkdownReading: View {
                 if block.isDiagram && selectable { MermaidDiagram(source: block.content) }
                 else {
                     Group {
-                        if selectable { StructuredText(block.content, parser: StudyMarkdownParser()).textual.textSelection(.enabled) }
-                        else { StructuredText(block.content, parser: StudyMarkdownParser()).textual.textSelection(.disabled) }
+                        if selectable { StructuredText(block.content, parser: StudyMarkdownParser(linkSources: snapshot != nil)).textual.textSelection(.enabled) }
+                        else { StructuredText(block.content, parser: StudyMarkdownParser(linkSources: snapshot != nil)).textual.textSelection(.disabled) }
                     }.textual.inlineStyle(StudyTextTheme.inline).textual.highlighterTheme(StudyTextTheme.code).textual.headingStyle(ReadingHeadingStyle()).textual.codeBlockStyle(ReadingCodeStyle(interactive: selectable)).font(.system(size: fontSize * readingScale)).foregroundStyle(Palette.studyInk).frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }.frame(maxWidth: .infinity, alignment: .leading)
+            .environment(\.openURL, OpenURLAction { url in
+                if url.scheme == "palm-source", snapshot != nil { source = try? SourceReference(link: url); return .handled }
+                if url.scheme == nil, snapshot != nil { source = try? SourceReference(url.relativeString); return .handled }
+                return ["https", "http"].contains(url.scheme ?? "") ? .systemAction : .discarded
+            })
+            .sheet(item: $source) { reference in if let snapshot { SourceBrowser(root: snapshot, initial: reference) } }
     }
 }
 struct ProgressRing: View {
@@ -236,6 +244,7 @@ struct TutorComposer: View {
             HStack {
                 Text(!busy && focused ? "⌘ Return" : "").font(.system(size: 11)).foregroundStyle(.secondary)
                 Spacer()
+                VoiceInputButton(text: $text, shortcutEnabled: focused).disabled(busy)
                 if busy, let cancel { Button(action: cancel) { Image(systemName: "stop.fill") }.buttonStyle(IconButton()).accessibilityLabel("Stop response") }
                 else { Button(action: send) { Image(systemName: "arrow.up").fontWeight(.semibold) }.buttonStyle(IconButton()).background(Palette.soft, in: .rect(cornerRadius: 8)).disabled(busy || text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty).keyboardShortcut(focused ? KeyboardShortcut(.return, modifiers: .command) : nil).accessibilityLabel("Send message") }
             }

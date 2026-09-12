@@ -4,6 +4,7 @@ import WebKit
 import PalmCore
 
 struct StudyMarkdownParser: MarkupParser {
+    var linkSources = false
     func attributedString(for input: String) throws -> AttributedString {
         let prepared = MathMarkdown.prepare(input)
         let parser = AttributedStringMarkdownParser(baseURL: nil, syntaxExtensions: [.math])
@@ -27,6 +28,23 @@ struct StudyMarkdownParser: MarkupParser {
             guard !isCode else { continue }
             var marked = AttributedString(result[innerStart..<innerEnd]); marked.backgroundColor = Palette.studyHighlight
             result.replaceSubrange(start..<end, with: marked)
+        }
+        if linkSources {
+            // Directory paths are also useful navigation targets when shown as inline code.
+            for run in Array(result.runs) where run.link == nil && run.inlinePresentationIntent?.contains(.code) == true {
+                let path = String(result[run.range].characters)
+                if path.range(of: #"^(?:[A-Za-z0-9_@+.-]+/)+[A-Za-z0-9_@+.-]*$"#, options: .regularExpression) != nil,
+                   let reference = try? SourceReference(path) { result[run.range].link = reference.link }
+            }
+            let text = String(result.characters)
+            let pattern = #"(?<![\w/.:])(?:[A-Za-z0-9_@+.-]+/)*[A-Za-z0-9_+.-]+\.(?:swift|py|tsx?|jsx?|rs|go|java|cpp|[ch]|json|ya?ml|toml|md|sh|rb|css|html)(?:(?::|#L)[0-9]+(?:-(?:L)?[0-9]+)?)?(?![\w/])"#
+            for match in try NSRegularExpression(pattern: pattern).matches(in: text, range: NSRange(text.startIndex..., in: text)) {
+                guard let range = Range(match.range, in: text), let start = AttributedString.Index(range.lowerBound, within: result), let end = AttributedString.Index(range.upperBound, within: result), let ref = try? SourceReference(String(text[range])) else { continue }
+                let excluded = result[start..<end].runs.contains { run in
+                    run.link != nil || run.presentationIntent?.components.contains { if case .codeBlock = $0.kind { return true }; return false } == true
+                }
+                if !excluded { result[start..<end].link = ref.link }
+            }
         }
         return result
     }

@@ -1,0 +1,4 @@
+NemoTextProcessing binary framework, v0.3.0, Apache-2.0.
+Downloaded by FluidAudio's pinned Swift package.
+Source: https://github.com/FluidInference/text-processing-rs/tree/v0.3.0
+Binary: https://github.com/FluidInference/text-processing-rs/releases/tag/v0.3.0

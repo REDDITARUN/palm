@@ -29,6 +29,8 @@ enum Destination: String, CaseIterable, Identifiable {
     var newCourseTopic = ""
     var error: String?
     var notice: String?
+    var workStartedAt: Date?
+    var workActivity = ""
     var busy: String?
     var task: Task<Void, Never>?
     var tutorBusy = false
@@ -63,7 +65,7 @@ enum Destination: String, CaseIterable, Identifiable {
         isLiveTesting = ProcessInfo.processInfo.arguments.contains("--live-provider")
         let testDir = testDirectory ?? ProcessInfo.processInfo.environment["PALM_TEST_DATA"].map { URL(fileURLWithPath: $0) } ?? FileManager.default.temporaryDirectory.appendingPathComponent("Palm-UITests")
         do {
-            database = try LocalDatabase(directory: testing ? testDir : nil)
+            database = try LocalDatabase(directory: testing ? testDir : nil, appVersion: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String)
             data = try database.load()
         } catch {
             let alert = NSAlert(); alert.messageText = "Palm couldn't open your library"
@@ -135,11 +137,13 @@ enum Destination: String, CaseIterable, Identifiable {
         do { try database.saveNote(data.notes[i], revision: revision) } catch { self.error = "Could not save this note: " + error.localizedDescription }
     }
     func newNote() { let note = StudyNote(); data.notes.insert(note, at: 0); selectedNoteID = note.id; destination = .notebook; save() }
+    func setWorkActivity(_ status: String) { if busy != nil { workActivity = status } }
     func run(_ title: String, kind: String, action: @escaping () async throws -> Void) {
         guard task == nil else { return }
-        busy = title; error = nil
+        busy = title; error = nil; workStartedAt = Date(); workActivity = ""
         let job = GenerationJob(kind: kind, title: title); data.jobs.append(job); save()
         task = Task {
+            await ai.observeActivity { [weak self] status in await self?.setWorkActivity(status) }
             do {
                 try await action(); try Task.checkCancellation()
                 if let i = data.jobs.firstIndex(where: { $0.id == job.id }) { data.jobs[i].status = "complete"; data.jobs[i].completedAt = Date() }
@@ -148,7 +152,8 @@ enum Destination: String, CaseIterable, Identifiable {
                 if let i = data.jobs.firstIndex(where: { $0.id == job.id }) { data.jobs[i].status = cancelled ? "cancelled" : "failed"; data.jobs[i].error = cancelled ? nil : error.localizedDescription }
                 if !cancelled { self.error = error.localizedDescription }
             }
-            save(); busy = nil; task = nil
+            await ai.observeActivity(nil)
+            save(); busy = nil; task = nil; workStartedAt = nil; workActivity = ""
         }
     }
     func cancelWork() { task?.cancel(); Task { await runtime.stop() } }
@@ -166,7 +171,9 @@ enum Destination: String, CaseIterable, Identifiable {
             let outline = try await ai.outline(topic: topic, level: level, diagnostic: diagnostic, context: context + "\nTeaching preferences:\n" + TeachingPrompts.resolved(.curriculum, preferences: data.preferences) + "\n" + enabledSkillInstructions, config: modelConfiguration(for: "planning"))
             try Task.checkCancellation()
             let course = Course(topic: topic, level: level, repositoryID: repositoryID, outline: outline, diagnostic: diagnostic)
-            data.courses.insert(course, at: 0); showingNewCourse = false; openCourse(course.id)
+            data.courses.insert(course, at: 0)
+            if showingNewCourse { showingNewCourse = false; openCourse(course.id) }
+            else { notice = "Your course is ready: " + course.outline.title }
         }
     }
     func startLesson(course: Course, lesson: LessonOutline, review: ReviewItem? = nil) {
@@ -275,7 +282,7 @@ enum Destination: String, CaseIterable, Identifiable {
         if let cached = data.repositoryInsights?.last(where: { $0.repositoryID == repo.id && $0.snapshotID == repo.snapshotID && $0.topic == topic }) { return context + "\n" + cached.summary }
         if toolsReady {
             busy = "Following symbols, references, and tests…"
-            let summary = try await runtime.explore(repository: repo, topic: topic, configuration: modelConfiguration(for: "research"))
+            let summary = try await runtime.explore(repository: repo, topic: topic, configuration: modelConfiguration(for: "research"), onActivity: { [weak self] status in await self?.setWorkActivity(status) })
             try Task.checkCancellation()
             if data.repositoryInsights == nil { data.repositoryInsights = [] }
             data.repositoryInsights?.append(RepositoryInsight(repositoryID: repo.id, snapshotID: repo.snapshotID, topic: topic, summary: summary)); save()

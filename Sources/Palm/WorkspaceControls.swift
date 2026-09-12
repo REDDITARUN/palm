@@ -242,7 +242,7 @@ struct ShortcutGuide: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack { Text("Keyboard shortcuts").font(.title2); Spacer(); Button("Done") { dismiss() }.buttonStyle(QuietButton()).keyboardShortcut(.cancelAction) }
-            ForEach(["⌘K|Search and commands", "⌘1–4|Today, Courses, Review, Notebook", "⌘N / ⇧⌘N|New note / New course", "⌘,|Settings", "⌘Return|Check answer or send from focused input", "Space|Reveal a flashcard", "↑ ↓ / Return|Navigate and choose in popovers", "Escape|Close the current popover or dialog"], id: \.self) { row in
+            ForEach(["⌘K|Search and commands", "⌘1–4|Today, Courses, Review, Notebook", "⌘N / ⇧⌘N|New note / New course", "⌘,|Settings", "⌘Return|Check answer or send from focused input", "⌘⇧D|Start / stop dictation in the focused input", "Space|Reveal a flashcard", "↑ ↓ / Return|Navigate and choose in popovers", "Escape|Close the current popover or dialog"], id: \.self) { row in
                 let parts = row.components(separatedBy: "|")
                 HStack { Text(parts[1]); Spacer(); Text(parts[0]).monospaced().foregroundStyle(.secondary) }.font(.system(size: 13))
             }

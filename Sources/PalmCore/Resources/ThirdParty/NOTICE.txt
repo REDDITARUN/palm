@@ -3,10 +3,12 @@ Palm native dependencies — retain their original licenses.
 codeeditlanguages: https://github.com/CodeEditApp/CodeEditLanguages.git @ 331d5dbc5fc8513be5848fce8a2a312908f36a11
 codeeditsourceeditor: https://github.com/CodeEditApp/CodeEditSourceEditor.git @ 1fa4d3c3ffba007482111466cb9721416f97ae00
 codeedittextview: https://github.com/CodeEditApp/CodeEditTextView.git @ d7ac3f11f22ec2e820187acce8f3a3fb7aa8ddec
+fluidaudio: https://github.com/FluidInference/FluidAudio.git @ 41540ea237350afe5117a082b5c28eda642d0612
 grdb.swift: https://github.com/groue/GRDB.swift.git @ b83108d10f42680d78f23fe4d4d80fc88dab3212
 highlighterswift: https://github.com/smittytone/HighlighterSwift @ fe7aae9c9b31d3b296fd3d2dd575e1a207bb29e0
 openai: https://github.com/MacPaw/OpenAI.git @ a532be89be9a30ec003e4ba0974a52a88d26fc6d
 rearrange: https://github.com/ChimeHQ/Rearrange @ 4de8be41dba304192e87dc0a11e0aa39e72aa2e8
+sparkle: https://github.com/sparkle-project/Sparkle.git @ ac2def288cbff5cfc7df3ffef6abdf45b72bcb0a
 swift-collections: https://github.com/apple/swift-collections.git @ a0cb0954ecb21e4e31b0070e6ed5674e8556685a
 swift-concurrency-extras: https://github.com/pointfreeco/swift-concurrency-extras @ 5fa253428866f2360c3754e88537f700ed2656b5
 swift-fsrs: https://github.com/open-spaced-repetition/swift-fsrs.git @ 4fbaf20184d62f82a9f44f343337c61a2c5483e9

@@ -104,7 +104,7 @@ private final class ProcessCancellation: @unchecked Sendable {
 }
 
 public enum ProcessRunner {
-    public static func output(_ executable: String, _ arguments: [String], input: Data? = nil, environment: [String: String]? = nil, timeout: TimeInterval = 120) -> AsyncThrowingStream<Data, Error> {
+    public static func output(_ executable: String, _ arguments: [String], input: Data? = nil, environment: [String: String]? = nil, timeout: TimeInterval? = 120) -> AsyncThrowingStream<Data, Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 do { _ = try await run(executable, arguments, input: input, environment: environment, timeout: timeout, onOutput: { continuation.yield($0) }); continuation.finish() }
@@ -113,7 +113,7 @@ public enum ProcessRunner {
             continuation.onTermination = { _ in task.cancel() }
         }
     }
-    public static func run(_ executable: String, _ arguments: [String], input: Data? = nil, environment: [String: String]? = nil, timeout: TimeInterval = 120, onOutput: (@Sendable (Data) -> Void)? = nil) async throws -> Data {
+    public static func run(_ executable: String, _ arguments: [String], input: Data? = nil, environment: [String: String]? = nil, timeout: TimeInterval? = 120, onOutput: (@Sendable (Data) -> Void)? = nil) async throws -> Data {
         let cancellation = ProcessCancellation()
         return try await withTaskCancellationHandler {
         try await withCheckedThrowingContinuation { continuation in
@@ -124,7 +124,7 @@ public enum ProcessRunner {
                 process.standardOutput = output; process.standardError = error; process.standardInput = stdin
                 do { try cancellation.launch(process) } catch { continuation.resume(throwing: error); return }
                 let timer = DispatchSource.makeTimerSource()
-                timer.schedule(deadline: .now() + timeout)
+                timer.schedule(deadline: timeout.map { .now() + $0 } ?? .distantFuture)
                 timer.setEventHandler { if process.isRunning { process.terminate() } }; timer.resume()
                 let errorRead = DispatchGroup(); errorRead.enter()
                 DispatchQueue.global().async { _ = error.fileHandleForReading.readDataToEndOfFile(); errorRead.leave() }

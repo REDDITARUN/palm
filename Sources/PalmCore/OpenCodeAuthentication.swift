@@ -122,8 +122,8 @@ public enum OpenCodeEnvironment {
         let provider = configuration.agentProvider ?? "palmcustom"
         let selected = provider + "/" + configuration.model
         // OpenCode also uses a small model for background work. Keep that work on the user's exact choice.
-        if configuration.authentication == .chatGPT { return ["enabled_providers": ["openai"], "model": selected, "small_model": selected] }
-        var entry: [String: Any] = ["options": ["apiKey": "{env:PALM_MODEL_API_KEY}", "baseURL": configuration.endpoint]]
+        if configuration.authentication == .chatGPT { return ["enabled_providers": ["openai"], "model": selected, "small_model": selected, "provider": ["openai": ["options": ["timeout": false, "headerTimeout": 1_800_000, "chunkTimeout": 1_800_000]]]] }
+        var entry: [String: Any] = ["options": ["apiKey": "{env:PALM_MODEL_API_KEY}", "baseURL": configuration.endpoint, "timeout": false, "headerTimeout": 1_800_000, "chunkTimeout": 1_800_000]]
         if provider == "palmcustom" { entry["npm"] = "@ai-sdk/openai-compatible"; entry["name"] = "Palm custom provider" }
         entry["models"] = [configuration.model: ["name": configuration.model]]
         return ["enabled_providers": [provider], "model": selected, "small_model": selected, "provider": [provider: entry]]

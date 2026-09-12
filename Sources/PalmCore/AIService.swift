@@ -32,15 +32,17 @@ public struct ModelConfiguration {
 public actor AIService {
     private let session: URLSession
     private let runtime: RuntimeService?
+    private var activity: (@Sendable (String) async -> Void)?
+    public func observeActivity(_ callback: (@Sendable (String) async -> Void)?) { activity = callback }
     private var supportedParameters: [String: Set<String>] = [:]
     private let observeArtifact: (@Sendable (String) -> Void)?
-    public init(session: URLSession = .shared, runtime: RuntimeService? = nil, observeArtifact: (@Sendable (String) -> Void)? = nil) { self.session = session; self.runtime = runtime; self.observeArtifact = observeArtifact }
+    public init(session: URLSession = LongRunningRequest.session, runtime: RuntimeService? = nil, observeArtifact: (@Sendable (String) -> Void)? = nil) { self.session = session; self.runtime = runtime; self.observeArtifact = observeArtifact }
     private func request(_ config: ModelConfiguration, path: String, body: [String: Any]? = nil) throws -> URLRequest {
         try config.validateEndpoint()
         guard config.authentication == .apiKey else { throw PalmError.message("ChatGPT requests must use the OpenCode connection, not API-key billing.") }
         let base = URL(string: config.endpoint)!
         guard config.allowsEmptyKey || !config.key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw PalmError.message("Add an API key or sign in with ChatGPT in Settings → Model.") }
-        var request = URLRequest(url: base.appendingPathComponent(path)); request.timeoutInterval = 180
+        var request = URLRequest(url: base.appendingPathComponent(path)); request.timeoutInterval = body == nil ? 60 : LongRunningRequest.silenceLimit
         if config.isOpenRouter { request.setValue("Palm", forHTTPHeaderField: "X-OpenRouter-Title") }
         if !config.key.isEmpty { request.setValue("Bearer \(config.key)", forHTTPHeaderField: "Authorization") }
         if let body { request.httpMethod = "POST"; request.setValue("application/json", forHTTPHeaderField: "Content-Type"); request.httpBody = try JSONSerialization.data(withJSONObject: body) }
@@ -74,9 +76,12 @@ public actor AIService {
         return catalog.map(\.id).sorted()
     }
     public func text(_ prompt: String, config: ModelConfiguration, json: Bool = false) async throws -> String {
+        await activity?("Waiting for the model…")
         if config.requiresHarness {
             guard let runtime else { throw PalmError.message("This model requires the local OpenCode learning agent. Prepare local tools in Settings.") }
-            let result = try await runtime.generate(TeachingPrompts.voice + "\n" + prompt + (json ? "\nReturn only one JSON object matching the schema." : ""), configuration: config)
+            let result = try await runtime.generate(TeachingPrompts.voice + "\n" + prompt + (json ? "\nReturn only one JSON object matching the schema." : ""), configuration: config, onEvent: { [activity] event in
+                switch event { case .status(let status): await activity?(status); case .text: await activity?("Receiving the response…"); default: break }
+            })
             observeArtifact?(result); return result
         }
         if config.isOpenRouter && supportedParameters[config.model] == nil {
@@ -87,16 +92,57 @@ public actor AIService {
         var body: [String: Any] = ["model": config.model, "messages": [["role": "system", "content": system], ["role": "user", "content": prompt]], (config.isOpenRouter ? "max_tokens" : "max_completion_tokens"): json ? 16000 : 3500]
         if config.isOpenRouter { body["reasoning"] = ["effort": "low", "exclude": true] }
         if json && (!config.isOpenRouter || supportedParameters[config.model]?.contains("response_format") == true) { body["response_format"] = ["type": "json_object"] }
-        let data = try await send(request(config, path: "chat/completions", body: body))
-        struct Completion: Decodable {
-            struct Choice: Decodable { struct Message: Decodable { var content: String?; var refusal: String? }; var message: Message; var finish_reason: String? }
-            var choices: [Choice]
-        }
-        let completion = try JSONDecoder().decode(Completion.self, from: data)
-        guard let choice = completion.choices.first, choice.finish_reason != "length", let text = choice.message.content, !text.isEmpty else {
-            throw PalmError.message("The model response was empty, refused, or cut short. Please retry with a more focused topic.")
-        }
+        body["stream"] = true
+        let text = try await completionText(request(config, path: "chat/completions", body: body))
         observeArtifact?(text)
+        return text
+    }
+    private func completionText(_ request: URLRequest) async throws -> String {
+        let (bytes, response) = try await session.bytes(for: request)
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+            let message: String
+            switch status {
+            case 401, 403: message = "The provider rejected this key or model access. Check your credentials and model in Settings."
+            case 429: message = "The provider's rate or billing limit was reached. Your work is saved; retry when capacity is available."
+            case 408, 504: message = "The provider timed out. Palm kept waiting, but the server ended this request. Your work is saved; retry when it is available."
+            case 404: message = "This endpoint or model was not found. Check your model settings."
+            default: message = "The model provider returned HTTP \(status). Your saved work is unchanged. Check availability and retry."
+            }
+            throw PalmError.message(message)
+        }
+        if !(http.value(forHTTPHeaderField: "Content-Type") ?? "").lowercased().contains("text/event-stream") {
+            var data = Data()
+            for try await byte in bytes { try Task.checkCancellation(); data.append(byte); guard data.count <= 32_000_000 else { throw PalmError.message("The model response exceeded the size limit.") } }
+            guard let object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let choice = (object["choices"] as? [[String: Any]])?.first,
+                  choice["finish_reason"] as? String != "length",
+                  let text = (choice["message"] as? [String: Any])?["content"] as? String, !text.isEmpty else { throw PalmError.message("The model response was empty, refused, or cut short. Please retry.") }
+            return text
+        }
+        var events = ServerSentEvents(); var line = Data(); var text = ""; var finished = false
+        for try await byte in bytes {
+            try Task.checkCancellation()
+            if byte != 10 { line.append(byte); guard line.count <= 1_048_576 else { throw PalmError.message("The provider returned an oversized stream event.") }; continue }
+            var value = String(decoding: line, as: UTF8.self); line.removeAll(keepingCapacity: true)
+            if value.last == "\r" { value.removeLast() }
+            guard let payload = events.consume(value) else { continue }
+            if payload == "[DONE]" { finished = true; break }
+            guard let object = try JSONSerialization.jsonObject(with: Data(payload.utf8)) as? [String: Any] else { continue }
+            if object["error"] != nil { throw PalmError.message("The provider interrupted generation. Retry when it is available; your work is saved.") }
+            guard let choice = (object["choices"] as? [[String: Any]])?.first else { continue }
+            if let reason = choice["finish_reason"] as? String {
+                guard reason == "stop" else { throw PalmError.message("The model did not finish its answer (\(reason)). Retry or choose another model.") }
+                finished = true
+            }
+            let delta = choice["delta"] as? [String: Any] ?? [:]
+            if delta["reasoning"] != nil || delta["reasoning_content"] != nil || delta["reasoning_details"] != nil { await activity?("Reasoning…") }
+            if let piece = delta["content"] as? String, !piece.isEmpty {
+                text += piece; guard text.utf8.count <= 32_000_000 else { throw PalmError.message("The model response exceeded the size limit.") }
+                await activity?("Writing and checking the response…")
+            }
+        }
+        guard finished, !text.isEmpty else { throw PalmError.message("The provider disconnected before finishing. Your work is saved; retry to generate a complete response.") }
         return text
     }
     public func tutor(_ prompt: String, config: ModelConfiguration) async throws -> String {

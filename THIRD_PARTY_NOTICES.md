@@ -10,3 +10,6 @@ The MIT license at the repository root covers original Palm code. It does not re
 - Optional OpenCode, uv, Serena, Mem0, Qdrant, FastEmbed, language servers, and embedding weights are downloaded at runtime rather than bundled in the release. Their own licenses and model terms apply. Version pins are visible in `Sources/PalmCore/Resources/setup-runtime.sh`.
 
 Regenerate dependency notices when updating a dependency. Preserve complete applicable license texts when redistributing the app. AI provider services and model weights have separate terms from the app's source-code license.
+
+- FluidAudio 0.15.7 (Apache-2.0) supplies local Parakeet speech recognition. Its NemoTextProcessing 0.3.0 binary dependency retains its bundled license. Parakeet v3 Core ML model weights are downloaded from FluidInference's Hugging Face repository on demand, not shipped in the installer; model terms apply separately. The upstream NVIDIA Parakeet v3 model is attributed to NVIDIA (CC-BY-4.0); the Core ML conversion is provided by FluidInference. See https://huggingface.co/FluidInference/parakeet-tdt-0.6b-v3-coreml and https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3.
+- Sparkle 2.9.6 provides signed application updates. Its framework, helper applications, and original license notices are retained in the app bundle.

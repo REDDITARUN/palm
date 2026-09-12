@@ -16,7 +16,7 @@ struct SettingsView: View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Settings").font(.system(size: 18, weight: .semibold)).padding(.bottom, 20).padding(.horizontal, 10)
-                ForEach(["General", "Model", "Agents", "Teaching", "Local tools", "Memory", "Data"], id: \.self) { item in
+                ForEach(["General", "Model", "Agents", "Teaching", "Local tools", "Memory", "Data", "Updates"], id: \.self) { item in
                     Button { tab = item } label: { Text(item).font(.system(size: 13)).frame(maxWidth: .infinity, alignment: .leading).padding(10).background(tab == item ? Palette.selection : .clear, in: .rect(cornerRadius: 8)).contentShape(.rect(cornerRadius: 8)) }.buttonStyle(OptionButtonStyle()).accessibilityAddTraits(tab == item ? .isSelected : [])
                 }
                 Spacer()
@@ -34,6 +34,7 @@ struct SettingsView: View {
                     case "Teaching": teaching
                     case "Local tools": tools
                     case "Memory": memories
+                    case "Updates": UpdateSettings()
                     default: storage
                     }
                 }.padding(.vertical, 8)

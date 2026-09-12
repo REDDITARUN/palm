@@ -6,10 +6,20 @@ public final class LocalDatabase {
     private let queue: DatabaseQueue
     private var indexedNotes: [StudyNote]?
     public let directory: URL
-    public init(directory: URL? = nil) throws {
+    public init(directory: URL? = nil, appVersion: String? = nil) throws {
         self.directory = directory ?? Self.defaultDirectory()
         try FileManager.default.createDirectory(at: self.directory, withIntermediateDirectories: true)
         queue = try DatabaseQueue(path: self.directory.appendingPathComponent("plam.sqlite").path)
+        // Take a SQLite-consistent safety copy before any future schema migration.
+        // This stamp belongs to the library, so replacing the app never resets it.
+        let stamp = self.directory.appendingPathComponent("app-version.txt")
+        let previous = try? String(contentsOf: stamp, encoding: .utf8)
+        if let appVersion, previous != appVersion, try queue.read({ try $0.tableExists("state") }) {
+            let backups = self.directory.appendingPathComponent("UpgradeBackups", isDirectory: true)
+            try FileManager.default.createDirectory(at: backups, withIntermediateDirectories: true)
+            let target = try DatabaseQueue(path: backups.appendingPathComponent(UUID().uuidString + ".sqlite").path)
+            try queue.backup(to: target)
+        }
         var migrator = DatabaseMigrator()
         migrator.registerMigration("initial") { db in
             try db.execute(sql: "CREATE TABLE state (id INTEGER PRIMARY KEY, json BLOB NOT NULL)")
@@ -21,6 +31,7 @@ public final class LocalDatabase {
             try db.execute(sql: "CREATE TABLE conversations (id TEXT PRIMARY KEY, json BLOB NOT NULL)")
         }
         try migrator.migrate(queue)
+        if let appVersion { try appVersion.write(to: stamp, atomically: true, encoding: .utf8) }
     }
     /// Keep existing snapshots and runtime paths valid; fresh installs use the corrected name.
     public static func defaultDirectory(applicationSupport: URL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]) -> URL {

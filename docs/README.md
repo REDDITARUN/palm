@@ -12,6 +12,7 @@
 - [Architecture decision records](adr/README.md)
 - [Development and testing](DEVELOPMENT.md)
 - [Packaging and releases](RELEASING.md)
+- [1.0.3 release verification](RELEASE_103_REVIEW.md)
 - [1.0.0 release verification](PUBLIC_RELEASE_REVIEW.md)
 - [Contributing](../CONTRIBUTING.md)
 

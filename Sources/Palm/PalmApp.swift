@@ -12,6 +12,7 @@ import SwiftUI
         .defaultSize(width: 1260, height: 840)
         .windowStyle(.hiddenTitleBar)
         .commands {
+            CommandGroup(after: .appInfo) { CheckForUpdatesButton() }
             CommandGroup(after: .newItem) {
                 Button("New course") { store.showingNewCourse = true }.keyboardShortcut("n", modifiers: [.command, .shift])
                 Button("New note") { store.newNote() }.keyboardShortcut("n")
@@ -90,9 +91,8 @@ struct WorkspaceView: View {
                 }
                 }
                 }.frame(maxWidth: .infinity, maxHeight: .infinity)
-                if let busy = store.busy, !store.isEvaluating {
-                    HStack(spacing: 12) { ProgressView().controlSize(.small); Text(busy).font(.system(size: 12)); Spacer(); Button("Cancel") { store.cancelWork() }.buttonStyle(TextActionStyle()).foregroundStyle(.secondary) }
-                        .padding(14).background(Palette.soft)
+                if store.busy != nil, !store.isEvaluating {
+                    WorkStatusView()
                 } else if let notice = store.notice {
                     HStack { Image(systemName: "checkmark.circle"); Text(notice).font(.system(size: 12)); Spacer(); Button { store.notice = nil } label: { Image(systemName: "xmark") }.buttonStyle(TextActionStyle()) }.padding(14).foregroundStyle(Palette.accent).background(Palette.soft).task(id: notice) { do { try await Task.sleep(for: .seconds(8)); if store.notice == notice { store.notice = nil } } catch {} }
                 }

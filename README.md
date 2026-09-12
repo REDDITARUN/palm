@@ -19,11 +19,11 @@ Pick a technical topic or a repository. Palm builds a learning path, explains id
 
 ## Install
 
-Download the [Palm 1.0.2 disk image](https://github.com/REDDITARUN/palm/releases/download/v1.0.2/Palm-1.0.2-macOS-arm64.dmg), open it, and drag Palm into Applications. Requires Apple silicon (M1 or later) and macOS 15+.
+Download the [Palm 1.0.3 disk image](https://github.com/REDDITARUN/palm/releases/download/v1.0.3/Palm-1.0.3-macOS-arm64.dmg), open it, and drag Palm into Applications. Requires Apple silicon (M1 or later) and macOS 15+.
 
 **This community build is ad-hoc signed and not Apple-notarized.** If macOS says Apple could not verify Palm and you trust your copy from this repository, attempt to open it once, then use **System Settings → Privacy & Security → Open Anyway → Open**. [Apple’s instructions](https://support.apple.com/en-us/102445). These steps are for the verification warning, not an alert that the app will damage your computer or contains malware.
 
-The earlier download pause followed an incorrectly reported warning; the reporter clarified it was the standard “Apple could not verify” message. Downloads are restored with their unnotarized status explicit. Integrity checks passed, but they are not a guarantee of safety. Version 1.0.2 includes the saved connection manager, ChatGPT sign-in, and library removal controls.
+The earlier download pause followed an incorrectly reported warning; the reporter clarified it was the standard “Apple could not verify” message. Downloads are restored with their unnotarized status explicit. Integrity checks passed, but they are not a guarantee of safety. Version 1.0.3 adds longer-running AI work, clickable repository source links, local Parakeet dictation, and signed in-app updates. Existing libraries are preserved, with an upgrade recovery copy.
 
 ## Start with a free model
 

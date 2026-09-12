@@ -14,3 +14,5 @@ Status: accepted, recorded 2026-09-07. These records describe the implemented ar
 - [0008 — Distribution checks and macOS warning handling](0008-distribution-security-gate.md)
 
 - [0009 — Saved provider connections and ChatGPT authentication](0009-saved-connections-and-chatgpt.md)
+
+- [0010 — Long-running work, saved source, local dictation, and app updates](0010-long-work-source-voice-updates.md)

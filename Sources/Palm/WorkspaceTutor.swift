@@ -142,7 +142,7 @@ struct WorkspaceTutor: View {
                 else { Toggle("Help with this question", isOn: $questionHelp).font(.system(size: 11)).toggleStyle(.checkbox) }
                     Spacer(); Button { showHistory = true } label: { Image(systemName: "clock.arrow.circlepath") }.buttonStyle(IconButton()).accessibilityLabel("Conversation branches").help("Previous conversation branches")
                 }
-                TutorComposer(text: draft, placeholder: editNote ? "Describe the change…" : "Ask a question…", busy: running, context: selection, clearContext: { selection = "" }, cancel: { store.tutorTask?.cancel() }) { store.sendTutor(draft.wrappedValue, scope: scope, selection: selection, questionHelp: questionHelp, editNote: editNote) }
+                TutorComposer(text: draft, placeholder: editNote ? "Describe the change…" : "Ask a question…", busy: running, context: selection, clearContext: { selection = "" }, cancel: { store.tutorTask?.cancel() }) { store.sendTutor(draft.wrappedValue, scope: scope, selection: selection, questionHelp: questionHelp, editNote: editNote) }.id(scope)
                 if store.tutorBusy && !running { Text("Another conversation is responding.").font(.system(size: 11)).foregroundStyle(.secondary) }
             }.padding(14)
         }.sheet(isPresented: $showHistory) {

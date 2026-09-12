@@ -3,6 +3,7 @@ import XCTest
 
 private final class ProviderStub: URLProtocol {
     static var responseBody: Data = Data()
+    static var contentType = "application/json"
     static var status = 200
     static var lastRequest: URLRequest?
     static var requestCount = 0
@@ -10,7 +11,7 @@ private final class ProviderStub: URLProtocol {
     override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
     override func startLoading() {
         Self.lastRequest = request; Self.requestCount += 1
-        client?.urlProtocol(self, didReceive: HTTPURLResponse(url: request.url!, statusCode: Self.status, httpVersion: nil, headerFields: ["Content-Type": "application/json"])!, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didReceive: HTTPURLResponse(url: request.url!, statusCode: Self.status, httpVersion: nil, headerFields: ["Content-Type": Self.contentType])!, cacheStoragePolicy: .notAllowed)
         client?.urlProtocol(self, didLoad: Self.responseBody)
         client?.urlProtocolDidFinishLoading(self)
     }
@@ -20,12 +21,22 @@ private final class ProviderStub: URLProtocol {
 final class ProviderTests: XCTestCase {
     let config = ModelConfiguration(key: "test-only", endpoint: "https://provider.invalid/v1", model: "fixture")
     func service(body: String, status: Int = 200) -> AIService {
-        ProviderStub.responseBody = Data(body.utf8); ProviderStub.status = status; ProviderStub.requestCount = 0
+        ProviderStub.contentType = "application/json"; ProviderStub.responseBody = Data(body.utf8); ProviderStub.status = status; ProviderStub.requestCount = 0
         let configuration = URLSessionConfiguration.ephemeral; configuration.protocolClasses = [ProviderStub.self]
         return AIService(session: URLSession(configuration: configuration))
     }
     func completion(_ content: String) throws -> String {
         String(data: try JSONSerialization.data(withJSONObject: ["choices": [["message": ["content": content], "finish_reason": "stop"]]]), encoding: .utf8)!
+    }
+    func testStreamingGenerationPreservesContentAndRejectsDisconnects() async throws {
+        let stream = "data: {\"choices\":[{\"delta\":{\"content\":\"first\"}}]}\n\ndata: {\"choices\":[{\"delta\":{\"content\":\" second\"},\"finish_reason\":\"stop\"}]}\n\ndata: [DONE]\n\n"
+        let ai = service(body: stream); ProviderStub.contentType = "text/event-stream"
+        let result = try await ai.text("test", config: config)
+        XCTAssertEqual(result, "first second")
+        XCTAssertEqual(ProviderStub.lastRequest?.timeoutInterval, LongRunningRequest.silenceLimit)
+        let broken = service(body: "data: {\"choices\":[{\"delta\":{\"content\":\"partial\"}}]}\n\n"); ProviderStub.contentType = "text/event-stream"
+        do { _ = try await broken.text("test", config: config); XCTFail("Incomplete stream accepted") }
+        catch { XCTAssertTrue(error.localizedDescription.contains("disconnected")) }
     }
     func testProviderUsesConfiguredRouteAndBearerCredential() async throws {
         let ai = service(body: "{\"data\":[{\"id\":\"fixture\"}]}")

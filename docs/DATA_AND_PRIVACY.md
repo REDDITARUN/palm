@@ -35,3 +35,11 @@ Delete the application only to remove the executable; this preserves the library
 ## Name compatibility
 
 Version 1.0.1 corrects the app name to Palm. Fresh installs use the Palm support folder; existing installations keep their Plam folder and source paths. The SQLite filename, bundle identifier, Keychain service, reminder identifier, and derived memory namespace remain stable internal identifiers. No credentials, library records, or source snapshots are reset.
+
+## Voice and updates
+
+Parakeet dictation runs locally after the model download. Temporary recordings are deleted after transcription or cancellation, and are never added to the library or sent to an ASR server. Draft transcripts follow the normal AI-provider boundary only when you submit them. Downloaded weights live under `~/Library/Caches/app.plam.learning/Parakeet` and can be removed while Palm is closed to reclaim space.
+
+Sparkle checks the public GitHub Pages appcast and downloads signed GitHub release assets. Checks do not upload your courses or library; the hosting services still see ordinary network metadata. Automatic checks are opt-in. Update signing is separate from Apple notarization.
+
+`UpgradeBackups/` holds SQLite recovery copies taken before the first launch of a new app version. These copies contain historical learning records and deleted items may remain in them. They do not include source-file snapshots and do not replace a full `.palmbackup`. You can remove older recovery copies manually after confirming your library is intact.
