@@ -20,11 +20,12 @@ Sparkle adds manual and optional automatic update checks. Signed GitHub release 
 - Existing-library reopen, note/card preservation, pre-upgrade SQLite backup, and independent recovery-copy loading.
 - Native app: clicked a generated source path, verified the complete file and referenced-line highlight, and handed the selected code to the tutor. Inspected microphone controls and the Updates settings layout in an isolated library.
 - Release build includes Sparkle's complete framework/helpers, explicit update feed/public key, microphone permission description, and matching release/build versions. The build script rejects missing update metadata.
+- Native Sparkle test: an isolated app reporting 1.0.2 downloaded the signed DMG, reached Ready to Install, installed 1.0.3, and relaunched. Reopening the updated app with the same disposable test-library environment retained the course, session, and note. (Sparkle relaunch does not inherit the test-only environment variable; ordinary app libraries do not use that variable.)
 - Signed-archive verification succeeds; a modified archive is rejected. The appcast points to the versioned GitHub release asset and records its exact size and signature.
 - Public-file audit and Git whitespace checks.
 
 ## Not verified
 
-The Mac locked before the final native Sparkle download/install/relaunch test could be completed. A disposable older test app and local signed test feed were prepared. Microphone hardware capture and its macOS consent prompt were not exercised; recognition itself passed using an audio fixture. Production cloud-provider limits and long live reasoning requests were not retested.
+Microphone hardware capture and its macOS consent prompt were not exercised; recognition itself passed using an audio fixture. Production cloud-provider limits and long live reasoning requests were not retested.
 
 Community builds remain ad-hoc signed and unnotarized. Sparkle update signing does not constitute Apple notarization. Users upgrading from 1.0.2 need to install the new DMG once to obtain the updater.
